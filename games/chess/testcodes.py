@@ -5,7 +5,5 @@ class Paxnar:
 
 pow = Paxnar('s')
 shoo = Paxnar('g')
-print(pow is Paxnar)
-print(pow is not None)
-print(type(shoo) == Paxnar)
-print(pow is shoo)
+s = [Paxnar('sfg'), Paxnar('dg')]
+print(pow in s)

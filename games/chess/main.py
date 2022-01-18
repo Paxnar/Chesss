@@ -43,7 +43,7 @@ class Board:
             Rook(BLACK), Knight(BLACK), Bishop(BLACK), Queen(BLACK),
             King(BLACK), Bishop(BLACK), Knight(BLACK), Rook(BLACK)
         ]
-
+        self.kingscoords = [[0, 4], [7, 4]]
 
     def current_player_color(self):
         return self.color
@@ -71,7 +71,7 @@ class Board:
         Если нет --- вернёт False'''
 
         if not correct_coords(row, col) or not correct_coords(row1, col1):
-            print('1')
+            print('coords')
             return False
         if row == row1 and col == col1:
             return False  # нельзя пойти в ту же клетку
@@ -79,7 +79,10 @@ class Board:
         if piece is None:
             return False
         if piece.get_color() != self.color:
-            print(self.color)
+            if self.color == WHITE:
+                print('WHITE')
+            else:
+                print('BLACK')
             return False
         if self.field[row1][col1] is None:
             if not piece.can_move(self, row, col, row1, col1):
@@ -276,6 +279,10 @@ class King:
                 return False
 
         self.castling = False
+        if self.color == WHITE:
+            board.kingscoords[0] = [row1, col1]
+        else:
+            board.kingscoords[1] = [row1, col1]
         return True
 
     def can_attack(self, board, row, col, row1, col1):
@@ -413,6 +420,8 @@ def load_image(name, colorkey=None):
 class BoardPygame:
     # создание поля
     def __init__(self, width, height):
+        self.checkB = False
+        self.checkW = False
         self.width = width
         self.height = height
         self.board = [[0] * width for _ in range(height)]
@@ -427,10 +436,30 @@ class BoardPygame:
         self.top = top
         self.cell_size = cell_size
 
-    def render(self, screen, field):
+    def render(self, screen, field, board):
         x = self.left
         y = self.top
         size = self.cell_size
+        self.checkB = False
+        self.checkW = False
+        whiteking = board.kingscoords[0]
+        blackking = board.kingscoords[1]
+        for i in range(len(field)):
+            for o in range(len(field[i])):
+                if field[i][o] is not None:
+                    # self.field[row1][col1].get_color() == opponent(piece.get_color())
+                    if field[i][o].can_attack(board, i, o, whiteking[0], whiteking[1]):
+                        self.checkW = True
+                    if field[i][o].can_attack(board, i, o, blackking[0], blackking[1]):
+                        self.checkB = True
+                    if self.checkW or self.checkB:
+                        break
+                    if not field[i][o].can_attack(board, i, o, whiteking[0], whiteking[1]) and \
+                            not field[i][o].can_attack(board, i, o, blackking[0], blackking[1]):
+                        self.checkB = False
+                        self.checkW = False
+            if self.checkW or self.checkB:
+                break
         for i in range(len(field)):
             for o in range(len(field[i])):
                 if type(field[i][o]) == Queen:
@@ -440,10 +469,14 @@ class BoardPygame:
                         image = pygame.transform.scale(load_image("bQueen.png"), (90, 90))
                     screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
                 elif type(field[i][o]) == King:
-                    if field[i][o].get_color() == WHITE:
+                    if field[i][o].get_color() == WHITE and not self.checkW:
                         image = pygame.transform.scale(load_image("wKing.png"), (90, 90))
-                    else:
+                    elif field[i][o].get_color() == WHITE and self.checkW:
+                        image = pygame.transform.scale(load_image("wKingshah.png"), (90, 90))
+                    elif field[i][o].get_color() == BLACK and not self.checkB:
                         image = pygame.transform.scale(load_image("bKing.png"), (90, 90))
+                    elif field[i][o].get_color() == BLACK and self.checkB:
+                        image = pygame.transform.scale(load_image("bKingshah.png"), (90, 90))
                     screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
                 elif type(field[i][o]) == Pawn:
                     if field[i][o].get_color() == WHITE:
@@ -481,7 +514,7 @@ class BoardPygame:
         mx = mouse_pos[0]
         my = mouse_pos[1]
         if mx not in range(self.left, self.left + self.cell_size * self.width + 1) or my not in range(self.top,
-        self.top + self.cell_size * self.height + 1):
+                                                                                                      self.top + self.cell_size * self.height + 1):
             return None
         else:
             return ((mx - self.left) // self.cell_size, (my - self.top) // self.cell_size)
@@ -518,12 +551,11 @@ def main():
                 running = False
             screen.fill(pygame.Color(155, 155, 155))
             draw(screen, int(chisla[1]))
-            boardpygame.render(screen, board.field)
+            boardpygame.render(screen, board.field, board)
             pygame.display.flip()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 boardpygame.get_click(event.pos, screen, board)
     pygame.quit()
-
 
 
 if __name__ == "__main__":
