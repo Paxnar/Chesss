@@ -460,7 +460,6 @@ class BoardPygame:
                         self.checkW = False
             if self.checkW or self.checkB:
                 break
-
         for i in range(len(field)):
             for o in range(len(field[i])):
                 if type(field[i][o]) == Queen:
