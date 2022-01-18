@@ -43,17 +43,6 @@ class Board:
             Rook(BLACK), Knight(BLACK), Bishop(BLACK), Queen(BLACK),
             King(BLACK), Bishop(BLACK), Knight(BLACK), Rook(BLACK)
         ]
-        self.field = []
-        for row in range(8):
-            self.field.append([None] * 8)
-        self.field[0] = [
-            Rook(WHITE), None, None, None,
-            King(WHITE), None, None, Rook(WHITE)
-        ]
-        self.field[7] = [
-            Rook(BLACK), Knight(BLACK), Bishop(BLACK), Queen(BLACK),
-            King(BLACK), Bishop(BLACK), Knight(BLACK), Rook(BLACK)
-        ]
 
 
     def current_player_color(self):
