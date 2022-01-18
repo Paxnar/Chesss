@@ -20,8 +20,8 @@ def load_image(name, color_key=None):
 
 
 class Field:
-    pl1 = 0
-    pl2 = 0
+    pl1 = pl2 = 0
+
     # создание поля
     def __init__(self, scr):
         self.click_run = None
@@ -33,6 +33,7 @@ class Field:
         self.ttt_font = pygame.font.Font("fonts\\Troubleside.ttf", 80)
         screen.fill((155, 155, 155))
         self.render(screen)
+        self.winner_run = False
         self.click_run = False
         self.running = True
         while self.running:
@@ -42,13 +43,8 @@ class Field:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     self.get_cell(event.pos)
             pygame.display.flip()
-            while self.click_run:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        sys.exit()
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
-                        self.click_run = False
-                        self.__init__(scr)
+            self.winner_fin(scr)
+            self.click_to_con(scr)
 
     def render(self, scr, mode="continue", direction=None, line=None, player=None):
         screen.fill((155, 155, 155))
@@ -76,14 +72,46 @@ class Field:
                 scr.blit(pygame.transform.flip(load_image(f"images\\line2_{color}.png", -1), True, False), (432, 228))
             elif direction == "diag" and line == 1:
                 scr.blit(load_image(f"images\\line2_{color}.png", -1), (432, 228))
-            self.click_run = True
+            if self.pl1 == 10 or self.pl2 == 10:
+                self.winner_run = True
+            else:
+                self.click_run = True
         if self.moves == 9:
             self.click_run = True
 
+    def click_to_con(self, scr):
+        while self.click_run:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.click_run = False
+                    self.__init__(scr)
+
+    def winner_fin(self, scr):
+        if self.winner_run:
+            self.render_reset(scr)
+        while self.winner_run:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.pl1 = self.pl2 = 0
+                    self.winner_run = False
+                    self.__init__(scr)
+            pygame.display.flip()
+
     def render_reset(self, scr):
         screen.fill((155, 155, 155))
-        font = pygame.font.Font("fonts\\Troubleside.ttf", 77)
-        scr.blit(font.render("Продолжить?", 1, (0, 0, 0)), (332, 346))
+        pygame.draw.rect(screen, (0, 0, 0), (0, 0, 1280, 100))
+        scr.blit(self.ttt_font.render(f"Player1 - {self.pl1}", 1, (0, 0, 153)), (38, -10))
+        scr.blit(self.ttt_font.render(f"Player2 - {self.pl2}", 1, (200, 9, 2)), (676, -10))
+        font_l = pygame.font.Font("fonts\\Troubleside.ttf", 12)
+        if self.pl1 > self.pl2:
+            scr.blit(self.ttt_font.render("PLayer1 won", 1, (0, 0, 153)), (365, 346))
+        else:
+            scr.blit(self.ttt_font.render("PLayer2 won", 1, (200, 9, 2)), (365, 346))
+        scr.blit(font_l.render("Нажмите любую кнопку, чтобы начать заново", 1, (0, 0, 0)), (473, 488))
 
     def get_cell(self, mouse_pos):
         if mouse_pos[0] < 416 or mouse_pos[1] < 208 or mouse_pos[0] > 861 or mouse_pos[1] > 667:
@@ -109,7 +137,6 @@ class Field:
             self.render(self.scr, mode="stop", direction="diag", line=2, player=self.board[1][1])
         else:
             self.render(self.scr)
-
 
     def get_player_color(self, player=None):
         if player:
