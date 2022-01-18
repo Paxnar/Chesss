@@ -43,6 +43,18 @@ class Board:
             Rook(BLACK), Knight(BLACK), Bishop(BLACK), Queen(BLACK),
             King(BLACK), Bishop(BLACK), Knight(BLACK), Rook(BLACK)
         ]
+        self.field = []
+        for row in range(8):
+            self.field.append([None] * 8)
+        self.field[0] = [
+            Rook(WHITE), None, None, None,
+            King(WHITE), None, None, Rook(WHITE)
+        ]
+        self.field[7] = [
+            Rook(BLACK), Knight(BLACK), Bishop(BLACK), Queen(BLACK),
+            King(BLACK), Bishop(BLACK), Knight(BLACK), Rook(BLACK)
+        ]
+
 
     def current_player_color(self):
         return self.color
@@ -93,6 +105,17 @@ class Board:
         if type(self.field[row1][col1]) == Pawn:
             if (piece.get_color() == WHITE and row1 == 7) or (piece.get_color() == BLACK and row1 == 0):
                 self.field[row1][col1] = Queen(piece.get_color())
+        if type(self.field[row1][col1]) == King:
+            if not self.field[row1][col1].castling:
+                if self.field[row1][col1].castling2:
+                    if col1 == 6:
+                        piece = self.field[row1][7]
+                        self.field[row1][7] = None
+                        self.field[row1][5] = piece
+                    elif col1 == 2:
+                        piece = self.field[row1][0]
+                        self.field[row1][0] = None
+                        self.field[row1][3] = piece
         self.color = opponent(self.color)
         return True
 
@@ -101,6 +124,7 @@ class Rook:
 
     def __init__(self, color):
         self.color = color
+        self.castling = True
 
     def get_color(self):
         return self.color
@@ -126,6 +150,7 @@ class Rook:
             if not (board.get_piece(row, c) is None):
                 return False
 
+        self.castling = False
         return True
 
     def can_attack(self, board, row, col, row1, col1):
@@ -177,7 +202,6 @@ class Pawn:
 
 
 class Knight:
-    '''Класс коня. Пока что заглушка, которая может ходить в любую клетку.'''
 
     def __init__(self, color):
         self.color = color
@@ -208,6 +232,8 @@ class Knight:
 class King:
     def __init__(self, color):
         self.color = color
+        self.castling = True
+        self.castling2 = False
 
     def get_color(self):
         return self.color
@@ -216,6 +242,7 @@ class King:
         return 'K'
 
     def can_move(self, board, row, col, row1, col1):
+        self.castling2 = False
         if not correct_coords(row1, col1):
             return False
 
@@ -223,23 +250,43 @@ class King:
         if not (piece1 is None) and piece1.get_color() == self.get_color():
             return False
 
+        if self.castling:
+            if col1 == 6 and row == row1 and col1 - col == 2:
+                if type(board.field[row][7]) != Rook or board.field[row][5] is not None:
+                    return False
+                else:
+                    if board.field[row][7].castling:
+                        self.castling2 = True
+                    else:
+                        return False
+            elif col1 == 2 and row == row1 and col - col1 == 2:
+                if type(board.field[row][0]) != Rook or board.field[row][1] is not None \
+                        or board.field[row][3] is not None:
+                    return False
+                else:
+                    if board.field[row][0].castling:
+                        self.castling2 = True
+                    else:
+                        return False
+
         if not ((col == col1)
                 or (row == row1) or
-                (abs(col - col1) == abs(row - row1))):
+                (abs(col - col1) == abs(row - row1))) and not self.castling2:
             return False
 
-        if col == col1:
+        if col == col1 and not self.castling2:
             if abs(row - row1) != 1:
                 return False
 
-        if row1 == row:
+        if row1 == row and not self.castling2:
             if abs(col - col1) != 1:
                 return False
 
-        if abs(col - col1) == abs(row - row1):
+        if abs(col - col1) == abs(row - row1) and not self.castling2:
             if abs(col - col1) != 1:
                 return False
 
+        self.castling = False
         return True
 
     def can_attack(self, board, row, col, row1, col1):
@@ -301,8 +348,6 @@ class Queen:
 
 
 class Bishop:
-    '''Класс слона. Пока что заглушка, которая может ходить в любую клетку.'''
-
     def __init__(self, color):
         self.color = color
 
