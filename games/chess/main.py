@@ -138,6 +138,9 @@ class Rook(Piece):
     def can_move(self, board, row, col, row1, col1):
         # Невозможно сделать ход в клетку, которая не лежит в том же ряду
         # или столбце клеток.
+        if board.get_piece(row1, col1) is not None:
+            if board.get_piece(row1, col1).get_color() == self.color:
+                return False
         if row != row1 and col != col1:
             return False
 
@@ -154,6 +157,7 @@ class Rook(Piece):
                 return False
 
         self.castling = False
+        print(self.castling)
         return True
 
     def can_attack(self, board, row, col, row1, col1):
@@ -234,7 +238,7 @@ class Knight(Piece):
             return False
 
         piece1 = board.get_piece(row1, col1)
-        if not (piece1 is None) and piece1.get_color() == self.get_color():
+        if piece1 is not None and piece1.get_color() == self.get_color():
             return False
 
         if (abs(row1 - row) == 2 and abs(col1 - col) == 1) or (abs(row1 - row) == 1 and abs(col1 - col) == 2):
@@ -498,11 +502,12 @@ class BoardPygame:
         for i in range(len(field)):
             for o in range(len(field[i])):
                 if field[i][o] is not None:
-                    # self.field[row1][col1].get_color() == opponent(piece.get_color())
                     if field[i][o].can_attack(board, i, o, whiteking[0], whiteking[1]):
-                        self.checkW = True
+                        if field[i][o].get_color() != WHITE:
+                            self.checkW = True
                     if field[i][o].can_attack(board, i, o, blackking[0], blackking[1]):
-                        self.checkB = True
+                        if field[i][o].get_color() != BLACK:
+                            self.checkW = True
                     if self.checkW or self.checkB:
                         break
                     if not field[i][o].can_attack(board, i, o, whiteking[0], whiteking[1]) and \
