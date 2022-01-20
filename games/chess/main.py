@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+from random import randint
 
 WHITE = 1
 BLACK = 2
@@ -583,14 +584,20 @@ class BoardPygame:
                 self.selected = 'piece'
                 self.piece_coords = cell_coords
                 board.field[7 - cell_coords[1]][cell_coords[0]].exists = False
+                sound1 = pygame.mixer.Sound('data/piece_up.ogg')
+                pygame.mixer.Sound.play(sound1)
             elif self.selected == 'piece':
                 self.selected = 'none'
                 if board.move_piece(7 - self.piece_coords[1], self.piece_coords[0], 7 - cell_coords[1], cell_coords[0]):
                     print(True)
                     board.field[7 - cell_coords[1]][cell_coords[0]].exists = True
+                    sound1 = pygame.mixer.Sound('data/piece_down' + str(randint(1, 3)) + '.ogg')
+                    pygame.mixer.Sound.play(sound1)
                 else:
                     print(False)
                     board.field[7 - self.piece_coords[1]][self.piece_coords[0]].exists = True
+                    sound1 = pygame.mixer.Sound('data/piece_up.ogg')
+                    pygame.mixer.Sound.play(sound1)
 
 
 def start_screen(screen, color, y=0, vertical=False):
