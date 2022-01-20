@@ -532,6 +532,37 @@ class BoardPygame:
                     print(False)
 
 
+def start_screen(screen, color, y=0, vertical=False):
+    font = pygame.font.Font(None, 30)
+    if not vertical:
+        intro_text = ["a", "b", "c", "d", "e", 'f', 'g', 'h']
+        text_coord = 280 - 88 // 2
+        for line in intro_text:
+            string_rendered = font.render(line, True, pygame.Color(color))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 88
+            intro_rect.x = text_coord
+            intro_rect.y = y
+            screen.blit(string_rendered, intro_rect)
+            if color == 'black':
+                color = 'white'
+            else:
+                color = 'black'
+    else:
+        intro_text = ["8", "7", "6", "5", "4", '3', '2', '1']
+        text_coord = -45
+        for line in intro_text:
+            string_rendered = font.render(line, True, pygame.Color(color))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 88
+            intro_rect.y = text_coord
+            intro_rect.x = y
+            screen.blit(string_rendered, intro_rect)
+            if color == 'black':
+                color = 'white'
+            else:
+                color = 'black'
+
 def main():
     # Создаём шахматную доску
     chisla = [720, 8]
@@ -550,6 +581,10 @@ def main():
             screen.fill(pygame.Color(155, 155, 155))
             draw(screen, int(chisla[1]))
             boardpygame.render(screen, board.field, board)
+            start_screen(screen, 'black', -2)
+            start_screen(screen, 'white', 700)
+            start_screen(screen, 'black', 280, vertical=True)
+            start_screen(screen, 'white', 986, vertical=True)
             pygame.display.flip()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 boardpygame.get_click(event.pos, screen, board)
