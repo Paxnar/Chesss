@@ -1,4 +1,4 @@
-import os
+
 import pygame
 import sys
 
@@ -16,7 +16,7 @@ class Menu:
                 scr.blit(font.render(i[2], 1, i[3]), i[0])
 
     def render_games(self, scr):
-        pygame.draw.rect(scr, (0, 0, 0), (10,10, 100, 50), border_radius=2)
+        pygame.draw.rect(scr, (0, 0, 0), (10, 10, 100, 50), border_radius=2)
 
     # цикл меню
     def menu_cyc(self):
@@ -48,26 +48,11 @@ class Menu:
             pygame.display.flip()
 
 
-def load_image(name, color_key=None):
-    fullname = os.path.join('data', name)
-    try:
-        image = pygame.image.load(fullname).convert()
-    except pygame.error as message:
-        print('Cannot load image:', name)
-        raise SystemExit(message)
-
-    if color_key is not None:
-        if color_key == -1:
-            color_key = image.get_at((0, 0))
-        image.set_colorkey(color_key)
-    else:
-        image = image.convert_alpha()
-    return image
-
-
 items = [((483, 200), (305, 93), "Играть", (0, 0, 0), (18, 0, 255), 0),
          ((396, 310), (486, 93), "Настройки", (0, 0, 0), (18, 0, 255), 1),
          ((494, 420), (289, 93), "Выйти", (0, 0, 0), (18, 0, 255), 2)]
+
+games = [[(41, "images\\name.png"), (), 127]]
 
 pygame.init()
 size = width, height = 1280, 720
