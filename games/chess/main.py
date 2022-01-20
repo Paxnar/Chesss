@@ -157,7 +157,6 @@ class Rook(Piece):
                 return False
 
         self.castling = False
-        print(self.castling)
         return True
 
     def can_attack(self, board, row, col, row1, col1):
@@ -507,7 +506,7 @@ class BoardPygame:
                             self.checkW = True
                     if field[i][o].can_attack(board, i, o, blackking[0], blackking[1]):
                         if field[i][o].get_color() != BLACK:
-                            self.checkW = True
+                            self.checkB = True
                     if self.checkW or self.checkB:
                         break
                     if not field[i][o].can_attack(board, i, o, whiteking[0], whiteking[1]) and \
