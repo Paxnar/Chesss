@@ -4,7 +4,6 @@ import os
 
 WHITE = 1
 BLACK = 2
-selected = 'none'
 
 
 # Удобная функция для вычисления цвета противника
@@ -112,11 +111,23 @@ class Board:
         return True
 
 
-class Rook:
+class Piece:
+    def __init__(self):
+        self.exists = True
+
+    def doesexist(self):
+        if self.exists:
+            return True
+        else:
+            return False
+
+
+class Rook(Piece):
 
     def __init__(self, color):
         self.color = color
         self.castling = True
+        super().__init__()
 
     def get_color(self):
         return self.color
@@ -148,11 +159,18 @@ class Rook:
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
+    def doesexist(self):
+        if self.exists:
+            return True
+        else:
+            return False
 
-class Pawn:
+
+class Pawn(Piece):
 
     def __init__(self, color):
         self.color = color
+        super().__init__()
 
     def get_color(self):
         return self.color
@@ -192,11 +210,18 @@ class Pawn:
         return (row + direction == row1
                 and (col + 1 == col1 or col - 1 == col1))
 
+    def doesexist(self):
+        if self.exists:
+            return True
+        else:
+            return False
 
-class Knight:
+
+class Knight(Piece):
 
     def __init__(self, color):
         self.color = color
+        super().__init__()
 
     def get_color(self):
         return self.color
@@ -220,12 +245,19 @@ class Knight:
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
+    def doesexist(self):
+        if self.exists:
+            return True
+        else:
+            return False
 
-class King:
+
+class King(Piece):
     def __init__(self, color):
         self.color = color
         self.castling = True
         self.castling2 = False
+        super().__init__()
 
     def get_color(self):
         return self.color
@@ -288,12 +320,17 @@ class King:
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
+    def doesexist(self):
+        if self.exists:
+            return True
+        else:
+            return False
 
-class Queen:
-    '''Класс ферзя. Пока что заглушка, которая может ходить в любую клетку.'''
 
+class Queen(Piece):
     def __init__(self, color):
         self.color = color
+        super().__init__()
 
     def get_color(self):
         return self.color
@@ -342,10 +379,17 @@ class Queen:
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
+    def doesexist(self):
+        if self.exists:
+            return True
+        else:
+            return False
 
-class Bishop:
+
+class Bishop(Piece):
     def __init__(self, color):
         self.color = color
+        super().__init__()
 
     def get_color(self):
         return self.color
@@ -377,6 +421,12 @@ class Bishop:
 
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
+
+    def doesexist(self):
+        if self.exists:
+            return True
+        else:
+            return False
 
 
 def draw(screen, much):
@@ -429,6 +479,7 @@ class BoardPygame:
         self.left = 280
         self.top = 0
         self.cell_size = 30
+        self.selected = 'none'
 
     # настройка внешнего вида
     def set_view(self, left, top, cell_size):
@@ -460,6 +511,9 @@ class BoardPygame:
                         self.checkW = False
         for i in range(len(field)):
             for o in range(len(field[i])):
+                if field[i][o] is not None:
+                    if not field[i][o].doesexist():
+                        continue
                 if type(field[i][o]) == Queen:
                     if field[i][o].get_color() == WHITE:
                         image = pygame.transform.scale(load_image("wQueen.png"), (90, 90))
@@ -518,18 +572,21 @@ class BoardPygame:
             return ((mx - self.left) // self.cell_size, (my - self.top) // self.cell_size)
 
     def on_click(self, cell_coords, screen, board):
-        global selected
-        print(selected)
+        print(self.selected)
         if cell_coords is not None:
-            if selected == 'none' and board.field[7 - cell_coords[1]][cell_coords[0]] is not None:
-                selected = 'piece'
+            if self.selected == 'none' and board.field[7 - cell_coords[1]][cell_coords[0]] is not None:
+                self.movingpiece = board.field[7 - cell_coords[1]][cell_coords[0]]
+                self.selected = 'piece'
                 self.piece_coords = cell_coords
-            elif selected == 'piece':
-                selected = 'none'
+                board.field[7 - cell_coords[1]][cell_coords[0]].exists = False
+            elif self.selected == 'piece':
+                self.selected = 'none'
                 if board.move_piece(7 - self.piece_coords[1], self.piece_coords[0], 7 - cell_coords[1], cell_coords[0]):
                     print(True)
+                    board.field[7 - cell_coords[1]][cell_coords[0]].exists = True
                 else:
                     print(False)
+                    board.field[7 - self.piece_coords[1]][self.piece_coords[0]].exists = True
 
 
 def start_screen(screen, color, y=0, vertical=False):
@@ -585,9 +642,45 @@ def main():
             start_screen(screen, 'white', 700)
             start_screen(screen, 'black', 280, vertical=True)
             start_screen(screen, 'white', 986, vertical=True)
-            pygame.display.flip()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 boardpygame.get_click(event.pos, screen, board)
+            if event.type == pygame.MOUSEMOTION and boardpygame.selected == 'piece':
+                if type(boardpygame.movingpiece) == Queen:
+                    if boardpygame.movingpiece.get_color() == WHITE:
+                        image = pygame.transform.scale(load_image("wQueen.png"), (90, 90))
+                    else:
+                        image = pygame.transform.scale(load_image("bQueen.png"), (90, 90))
+                elif type(boardpygame.movingpiece) == King:
+                    if boardpygame.movingpiece.get_color() == WHITE and not boardpygame.checkW:
+                        image = pygame.transform.scale(load_image("wKing.png"), (90, 90))
+                    elif boardpygame.movingpiece.get_color() == WHITE and boardpygame.checkW:
+                        image = pygame.transform.scale(load_image("wKingshah.png"), (90, 90))
+                    elif boardpygame.movingpiece.get_color() == BLACK and not boardpygame.checkB:
+                        image = pygame.transform.scale(load_image("bKing.png"), (90, 90))
+                    elif boardpygame.movingpiece.get_color() == BLACK and boardpygame.checkB:
+                        image = pygame.transform.scale(load_image("bKingshah.png"), (90, 90))
+                elif type(boardpygame.movingpiece) == Pawn:
+                    if boardpygame.movingpiece.get_color() == WHITE:
+                        image = pygame.transform.scale(load_image("wPawn.png"), (90, 90))
+                    else:
+                        image = pygame.transform.scale(load_image("bPawn.png"), (90, 90))
+                elif type(boardpygame.movingpiece) == Bishop:
+                    if boardpygame.movingpiece.get_color() == WHITE:
+                        image = pygame.transform.scale(load_image("wBishop.png"), (90, 90))
+                    else:
+                        image = pygame.transform.scale(load_image("bBishop.png"), (90, 90))
+                elif type(boardpygame.movingpiece) == Knight:
+                    if boardpygame.movingpiece.get_color() == WHITE:
+                        image = pygame.transform.scale(load_image("wKnight.png"), (90, 90))
+                    else:
+                        image = pygame.transform.scale(load_image("bKnight.png"), (90, 90))
+                elif type(boardpygame.movingpiece) == Rook:
+                    if boardpygame.movingpiece.get_color() == WHITE:
+                        image = pygame.transform.scale(load_image("wRook.png"), (90, 90))
+                    else:
+                        image = pygame.transform.scale(load_image("bRook.png"), (90, 90))
+                screen.blit(image, (event.pos[0] - 45, event.pos[1] - 45))
+            pygame.display.flip()
     pygame.quit()
 
 
