@@ -5,6 +5,8 @@ from random import randint
 
 WHITE = 1
 BLACK = 2
+checkW = False
+checkB = False
 
 
 # Удобная функция для вычисления цвета противника
@@ -283,8 +285,12 @@ class King(Piece):
                 if type(board.field[row][7]) != Rook or board.field[row][5] is not None:
                     return False
                 else:
-                    if board.field[row][7].castling:
-                        self.castling2 = True
+                    if (self.color == WHITE and not checkW) or \
+                            (self.color == BLACK and not checkB):
+                        if board.field[row][7].castling:
+                            self.castling2 = True
+                        else:
+                            return False
                     else:
                         return False
             elif col1 == 2 and row == row1 and col - col1 == 2:
@@ -292,8 +298,12 @@ class King(Piece):
                         or board.field[row][3] is not None:
                     return False
                 else:
-                    if board.field[row][0].castling:
-                        self.castling2 = True
+                    if (self.color == WHITE and not checkW) or \
+                            (self.color == BLACK and not checkB):
+                        if board.field[row][0].castling:
+                            self.castling2 = True
+                        else:
+                            return False
                     else:
                         return False
 
@@ -633,13 +643,15 @@ def start_screen(screen, color, y=0, vertical=False):
 
 def main():
     # Создаём шахматную доску
+    global checkB
+    global checkW
     chisla = [720, 8]
-    board = Board()
     pygame.init()
     pygame.display.set_caption('Шахматы')
     size = width, height = 1280, int(chisla[0])
     screen = pygame.display.set_mode(size)
     boardpygame = BoardPygame(8, 8)
+    board = Board()
     boardpygame.cell_size = chisla[0] // chisla[1]
     running = True
     while running:
@@ -692,6 +704,8 @@ def main():
                         image = pygame.transform.scale(load_image("bRook.png"), (90, 90))
                 screen.blit(image, (event.pos[0] - 45, event.pos[1] - 45))
             pygame.display.flip()
+            checkW = boardpygame.checkW
+            checkB = boardpygame.checkB
     pygame.quit()
 
 
