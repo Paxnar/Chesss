@@ -18,8 +18,6 @@ def opponent(color):
 
 
 def correct_coords(row, col):
-    '''Функция проверяет, что координаты (row, col) лежат
-    внутри доски'''
     return 0 <= row < 8 and 0 <= col < 8
 
 
@@ -149,7 +147,7 @@ class Rook(Piece):
     def can_move(self, board, row, col, row1, col1):
         # Невозможно сделать ход в клетку, которая не лежит в том же ряду
         # или столбце клеток.
-        if board.get_piece(row1, col1) is not None:
+        if board.field[row1][col1] is not None:
             if board.get_piece(row1, col1).get_color() == self.color:
                 return False
         if row != row1 and col != col1:
@@ -248,11 +246,13 @@ class Knight(Piece):
         return 'N'  # kNight, буква 'K' уже занята королём
 
     def can_move(self, board, row, col, row1, col1):
-        if not correct_coords(row1, col1):
-            return False
+        try:
+            if not correct_coords(row1, col1):
+                return False
+        except BaseException as be:
+            print(be)
 
-        piece1 = board.get_piece(row1, col1)
-        if piece1 is not None and piece1.get_color() == self.get_color():
+        if board.field[row1][col1] is not None and board.field[row1][col1].get_color() == self.get_color():
             return False
 
         if (abs(row1 - row) == 2 and abs(col1 - col) == 1) or (abs(row1 - row) == 1 and abs(col1 - col) == 2):
@@ -276,6 +276,7 @@ class King(Piece):
         self.castling = True
         self.castling2 = False
         super().__init__()
+        self.count = 0
 
     def get_color(self):
         return self.color
@@ -284,12 +285,21 @@ class King(Piece):
         return 'K'
 
     def can_move(self, board, row, col, row1, col1):
+        self.count = 0
         self.castling2 = False
         if not correct_coords(row1, col1):
             return False
 
-        piece1 = board.get_piece(row1, col1)
-        if not (piece1 is None) and piece1.get_color() == self.get_color():
+        if not (board.field[row1][col1] is None) and board.field[row1][col1].get_color() == self.get_color():
+            return False
+
+        for i in range(len(board.field)):
+            for o in range(len(board.field[i])):
+                if (board.field[i][o] is not None) and board.field[i][o] != self and type(board.field[i][o]) != King:
+                    if board.field[i][o].color != self.color:
+                        if board.field[i][o].can_attack(board, i, o, row1, col1):
+                            self.count += 1
+        if self.count >= 1:
             return False
 
         if self.castling:
@@ -336,11 +346,6 @@ class King(Piece):
             if abs(col - col1) != 1:
                 return False
 
-        '''self.castling = False
-        if self.color == WHITE:
-            board.kingscoords[0] = [row1, col1]
-        else:
-            board.kingscoords[1] = [row1, col1]'''
         return True
 
     def can_attack(self, board, row, col, row1, col1):
@@ -368,8 +373,7 @@ class Queen(Piece):
         if not correct_coords(row1, col1):
             return False
 
-        piece1 = board.get_piece(row1, col1)
-        if not (piece1 is None) and piece1.get_color() == self.get_color():
+        if not (board.field[row1][col1] is None) and board.field[row1][col1].get_color() == self.get_color():
             return False
 
         if not ((col == col1)
@@ -427,8 +431,7 @@ class Bishop(Piece):
         if not correct_coords(row1, col1):
             return False
 
-        piece1 = board.get_piece(row1, col1)
-        if not (piece1 is None) and piece1.get_color() == self.get_color():
+        if not (board.field[row1][col1] is None) and board.field[row1][col1].get_color() == self.get_color():
             return False
 
         if not abs(col - col1) == abs(row - row1):
@@ -550,12 +553,16 @@ class BoardPygame:
                 elif type(field[i][o]) == King:
                     if field[i][o].get_color() == WHITE and not self.checkW:
                         image = pygame.transform.scale(load_image("wKing.png"), (90, 90))
-                    elif field[i][o].get_color() == WHITE and self.checkW:
+                    elif field[i][o].get_color() == WHITE and self.checkW and field[i][o].count >= 1:
                         image = pygame.transform.scale(load_image("wKingshah.png"), (90, 90))
+                    elif field[i][o].get_color() == WHITE and self.checkW and field[i][o].count == 0:
+                        image = pygame.transform.scale(load_image("wKingdead.png"), (90, 90))
                     elif field[i][o].get_color() == BLACK and not self.checkB:
                         image = pygame.transform.scale(load_image("bKing.png"), (90, 90))
-                    elif field[i][o].get_color() == BLACK and self.checkB:
+                    elif field[i][o].get_color() == BLACK and self.checkB and field[i][o].count >= 1:
                         image = pygame.transform.scale(load_image("bKingshah.png"), (90, 90))
+                    elif field[i][o].get_color() == BLACK and self.checkB and field[i][o].count == 0:
+                        image = pygame.transform.scale(load_image("bKingdead.png"), (90, 90))
                     screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
                 elif type(field[i][o]) == Pawn:
                     if field[i][o].get_color() == WHITE:
@@ -581,7 +588,7 @@ class BoardPygame:
                     else:
                         image = pygame.transform.scale(load_image("bRook.png"), (90, 90))
                     screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
-                if self.selected == 'piece' and board.color == self.movingpiece.color and\
+                if self.selected == 'piece' and board.color == self.movingpiece.color and \
                         (type(self.movingpiece) != King or (type(self.movingpiece) == King and (not self.checkW) and
                                                             (not self.checkB))):
                     if self.movingpiece.can_attack(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
@@ -590,7 +597,7 @@ class BoardPygame:
                     elif self.movingpiece.can_move(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
                         image = pygame.transform.scale(load_image("cool1.png"), (90, 90))
                         screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
-                elif self.selected == 'piece' and board.color == self.movingpiece.color and\
+                elif self.selected == 'piece' and board.color == self.movingpiece.color and \
                         type(self.movingpiece) == King and self.movingpiece.color == WHITE and self.checkW:
                     if self.movingpiece.can_attack(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
                         image = pygame.transform.scale(load_image("cool2.png"), (90, 90))
@@ -598,7 +605,7 @@ class BoardPygame:
                     elif self.movingpiece.can_move(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
                         image = pygame.transform.scale(load_image("cool2.png"), (90, 90))
                         screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
-                elif self.selected == 'piece' and board.color == self.movingpiece.color and\
+                elif self.selected == 'piece' and board.color == self.movingpiece.color and \
                         type(self.movingpiece) == King and self.movingpiece.color == BLACK and self.checkB:
                     if self.movingpiece.can_attack(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
                         image = pygame.transform.scale(load_image("cool2.png"), (90, 90))
