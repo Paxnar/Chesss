@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 
 
 def load_image(name, color_key=None):
@@ -19,26 +20,30 @@ def load_image(name, color_key=None):
     return image
 
 
-class Field:
+class TicTacToe:
     pl1 = pl2 = 0
 
     # создание поля
     def __init__(self, scr):
+        directory = os.getcwd()
         self.click_run = None
         self.field = [[415, 578, 741, 221], [415, 578, 741, 384], [415, 578, 741, 547]]
         self.board = [[None for i in range(3)] for i in range(3)]
         self.player = True
         self.moves = 0
         self.scr = scr
-        self.ttt_font = pygame.font.Font("fonts\\Troubleside.ttf", 80)
-        screen.fill((155, 155, 155))
-        self.render(screen)
+        self.ttt_font = pygame.font.Font("games\\tic_tac_toe\\fonts\\Troubleside.ttf", 80)
+        scr.fill((155, 155, 155))
+        self.render(scr)
         self.winner_run = False
         self.click_run = False
         self.running = True
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     self.running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     self.get_cell(event.pos)
@@ -47,31 +52,31 @@ class Field:
             self.click_to_con(scr)
 
     def render(self, scr, mode="continue", direction=None, line=None, player=None):
-        screen.fill((155, 155, 155))
-        pygame.draw.rect(screen, (0, 0, 0), (0, 0, 1280, 100))
+        scr.fill((155, 155, 155))
+        pygame.draw.rect(scr, (0, 0, 0), (0, 0, 1280, 100))
         scr.blit(self.ttt_font.render(f"Player1 - {self.pl1}", 1, (0, 0, 153)), (38, -10))
         scr.blit(self.ttt_font.render(f"Player2 - {self.pl2}", 1, (200, 9, 2)), (676, -10))
-        scr.blit(load_image("images\\field.png", -1), (412, 208))
+        scr.blit(load_image("games\\tic_tac_toe\\images\\field.png", -1), (412, 208))
         if self.player:
-            scr.blit(load_image("images\\x.png", -1), (10, 110))
+            scr.blit(load_image("games\\tic_tac_toe\\images\\x.png", -1), (10, 110))
         else:
-            scr.blit(load_image("images\\o.png", -1), (10, 110))
+            scr.blit(load_image("games\\tic_tac_toe\\images\\o.png", -1), (10, 110))
         for y in range(3):
             for x in range(3):
                 if self.board[y][x]:
-                    scr.blit(load_image("images\\x.png", -1), (self.field[y][x] + 5, self.field[y][3] + 5))
+                    scr.blit(load_image("games\\tic_tac_toe\\images\\x.png", -1), (self.field[y][x] + 5, self.field[y][3] + 5))
                 elif self.board[y][x] is False:
-                    scr.blit(load_image("images\\o.png", -1), (self.field[y][x] + 5, self.field[y][3] + 5))
+                    scr.blit(load_image("games\\tic_tac_toe\\images\\o.png", -1), (self.field[y][x] + 5, self.field[y][3] + 5))
         if mode == "stop":
             color = self.get_player_color(player)
             if direction == "hor":
-                scr.blit(pygame.transform.rotate(load_image(f"images\\line1_{color}.png", -1), 90), (422, 262 + line * 163))
+                scr.blit(pygame.transform.rotate(load_image(f"games\\tic_tac_toe\\images\\line1_{color}.png", -1), 90), (422, 262 + line * 163))
             elif direction == "vert":
-                scr.blit(load_image(f"images\\line1_{color}.png", -1), (461 + line * 163, 226))
+                scr.blit(load_image(f"games\\tic_tac_toe\\images\\line1_{color}.png", -1), (461 + line * 163, 226))
             elif direction == "diag" and line == 2:
-                scr.blit(pygame.transform.flip(load_image(f"images\\line2_{color}.png", -1), True, False), (432, 228))
+                scr.blit(pygame.transform.flip(load_image(f"games\\tic_tac_toe\\images\\line2_{color}.png", -1), True, False), (432, 228))
             elif direction == "diag" and line == 1:
-                scr.blit(load_image(f"images\\line2_{color}.png", -1), (432, 228))
+                scr.blit(load_image(f"games\\tic_tac_toe\\images\\line2_{color}.png", -1), (432, 228))
             if self.pl1 == 10 or self.pl2 == 10:
                 self.winner_run = True
             else:
@@ -102,11 +107,11 @@ class Field:
             pygame.display.flip()
 
     def render_reset(self, scr):
-        screen.fill((155, 155, 155))
-        pygame.draw.rect(screen, (0, 0, 0), (0, 0, 1280, 100))
+        scr.fill((155, 155, 155))
+        pygame.draw.rect(scr, (0, 0, 0), (0, 0, 1280, 100))
         scr.blit(self.ttt_font.render(f"Player1 - {self.pl1}", 1, (0, 0, 153)), (38, -10))
         scr.blit(self.ttt_font.render(f"Player2 - {self.pl2}", 1, (200, 9, 2)), (676, -10))
-        font_l = pygame.font.Font("fonts\\Troubleside.ttf", 12)
+        font_l = pygame.font.Font("games\\tic_tac_toe\\fonts\\Troubleside.ttf", 12)
         if self.pl1 > self.pl2:
             scr.blit(self.ttt_font.render("PLayer1 won", 1, (0, 0, 153)), (365, 346))
         else:
@@ -147,8 +152,4 @@ class Field:
             return "red"
 
 
-pygame.init()
-size = width, height = 1280, 720
-screen = pygame.display.set_mode(size)
-field = Field(screen)
-pygame.quit()
+

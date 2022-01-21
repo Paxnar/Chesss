@@ -1,6 +1,6 @@
-
 import pygame
 import sys
+from games.tic_tac_toe.tic_tac_toe import TicTacToe
 
 
 class Menu:
@@ -47,18 +47,25 @@ class Menu:
                     if menu_event.type == pygame.MOUSEBUTTONDOWN and menu_event.button == 1:
                         if item == 0:
                             menu_section = "games"
-                        if item == 1:
+                        elif item == 1:
                             run = False
                         elif item == 2:
                             sys.exit()
             if menu_section == "games":
                 self.render_games(screen)
                 game = 0
+                for i in self.menu_games:
+                    for f in range(len(i) - 1):
+                        if i[f][0] + 272 > mouse_pos[0] > i[f][0] and i[-1] + 179 > mouse_pos[1] > i[-1]:
+                            game = i[f][2]
                 for games_event in pygame.event.get():
                     if games_event.type == pygame.QUIT:
                         sys.exit()
                     if games_event.type == pygame.MOUSEBUTTONDOWN and games_event.button == 1:
-                        pass
+                        if game == 0:
+                            TicTacToe(screen)
+                    if games_event.type == pygame.KEYDOWN and games_event.key == pygame.K_ESCAPE:
+                        menu_section = "items"
             pygame.display.flip()
 
 
@@ -66,9 +73,9 @@ items = [((483, 200), (305, 93), "Играть", (0, 0, 0), (18, 0, 255), 0),
          ((396, 310), (486, 93), "Настройки", (0, 0, 0), (18, 0, 255), 1),
          ((494, 420), (289, 93), "Выйти", (0, 0, 0), (18, 0, 255), 2)]
 
-games = [[(41, "images\\game_ttt.png"), (350, "images\\game_chess.png"), (659, "images\\test.png"),
-          (968, "images\\test.png"), 127], [(41, "images\\test.png"), (350, "images\\test.png"),
-                                            (659, "images\\test.png"), 413]]
+games = [[(41, "images\\game_ttt.png", 0), (350, "images\\game_chess.png", 1), (659, "images\\test.png", 2),
+          (968, "images\\test.png", 3), 127], [(41, "images\\test.png", 4), (350, "images\\test.png", 5),
+                                               (659, "images\\test.png", 6), 413]]
 
 pygame.init()
 size = width, height = 1280, 720
