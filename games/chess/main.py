@@ -598,6 +598,14 @@ class BoardPygame:
                     elif self.movingpiece.can_move(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
                         image = pygame.transform.scale(load_image("cool2.png"), (90, 90))
                         screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
+                elif self.selected == 'piece' and board.color == self.movingpiece.color and\
+                        type(self.movingpiece) == King and self.movingpiece.color == BLACK and self.checkB:
+                    if self.movingpiece.can_attack(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
+                        image = pygame.transform.scale(load_image("cool2.png"), (90, 90))
+                        screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
+                    elif self.movingpiece.can_move(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
+                        image = pygame.transform.scale(load_image("cool2.png"), (90, 90))
+                        screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
                 x += size
             y += size
             x = self.left
