@@ -94,6 +94,10 @@ class Board:
                 return False
         else:
             return False
+        try:
+            self.field[row][col].castling = False
+        except BaseException:
+            True
         self.field[row][col] = None  # Снять фигуру.
         self.field[row1][col1] = piece  # Поставить на новое место.
         if type(self.field[row1][col1]) == Pawn:
@@ -110,6 +114,10 @@ class Board:
                         piece = self.field[row1][0]
                         self.field[row1][0] = None
                         self.field[row1][3] = piece
+            if self.field[row1][col1].get_color() == WHITE:
+                self.kingscoords[0] = [row1, col1]
+            else:
+                self.kingscoords[1] = [row1, col1]
         self.color = opponent(self.color)
         return True
 
@@ -159,7 +167,6 @@ class Rook(Piece):
             if not (board.get_piece(row, c) is None):
                 return False
 
-        self.castling = False
         return True
 
     def can_attack(self, board, row, col, row1, col1):
@@ -201,20 +208,25 @@ class Pawn(Piece):
 
         # ход на 1 клетку
         if row + direction == row1:
-            return True
+            if board.field[row1][col1] is None:
+                return True
 
         # ход на 2 клетки из начального положения
         if (row == start_row
                 and row + 2 * direction == row1
                 and board.field[row + direction][col] is None):
-            return True
+            if board.field[row1][col1] is None:
+                return True
 
         return False
 
     def can_attack(self, board, row, col, row1, col1):
-        direction = 1 if (self.color == WHITE) else -1
-        return (row + direction == row1
-                and (col + 1 == col1 or col - 1 == col1))
+        if board.field[row1][col1] is not None:
+            if board.field[row1][col1].get_color() != self.color:
+                direction = 1 if (self.color == WHITE) else -1
+                return (row + direction == row1
+                        and (col + 1 == col1 or col - 1 == col1))
+        return False
 
     def doesexist(self):
         if self.exists:
@@ -324,11 +336,11 @@ class King(Piece):
             if abs(col - col1) != 1:
                 return False
 
-        self.castling = False
+        '''self.castling = False
         if self.color == WHITE:
             board.kingscoords[0] = [row1, col1]
         else:
-            board.kingscoords[1] = [row1, col1]
+            board.kingscoords[1] = [row1, col1]'''
         return True
 
     def can_attack(self, board, row, col, row1, col1):
@@ -569,6 +581,23 @@ class BoardPygame:
                     else:
                         image = pygame.transform.scale(load_image("bRook.png"), (90, 90))
                     screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
+                if self.selected == 'piece' and board.color == self.movingpiece.color and\
+                        (type(self.movingpiece) != King or (type(self.movingpiece) == King and (not self.checkW) and
+                                                            (not self.checkB))):
+                    if self.movingpiece.can_attack(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
+                        image = pygame.transform.scale(load_image("cool1.png"), (90, 90))
+                        screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
+                    elif self.movingpiece.can_move(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
+                        image = pygame.transform.scale(load_image("cool1.png"), (90, 90))
+                        screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
+                elif self.selected == 'piece' and board.color == self.movingpiece.color and\
+                        type(self.movingpiece) == King and self.movingpiece.color == WHITE and self.checkW:
+                    if self.movingpiece.can_attack(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
+                        image = pygame.transform.scale(load_image("cool2.png"), (90, 90))
+                        screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
+                    elif self.movingpiece.can_move(board, 7 - self.piece_coords[1], self.piece_coords[0], i, o):
+                        image = pygame.transform.scale(load_image("cool2.png"), (90, 90))
+                        screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
                 x += size
             y += size
             x = self.left
@@ -640,6 +669,7 @@ def start_screen(screen, color, y=0, vertical=False):
                 color = 'white'
             else:
                 color = 'black'
+
 
 def main():
     # Создаём шахматную доску
