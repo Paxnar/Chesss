@@ -89,7 +89,7 @@ class TicTacToe:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
                     self.click_run = False
                     self.__init__(scr)
 
@@ -100,7 +100,7 @@ class TicTacToe:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
                     self.pl1 = self.pl2 = 0
                     self.winner_run = False
                     self.__init__(scr)
