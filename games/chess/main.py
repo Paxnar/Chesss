@@ -62,7 +62,7 @@ class Board:
         self.field[4][5] = Bishop(WHITE)
         self.field[2][6] = Queen(WHITE)
         self.kingscoords = [[7, 4], [3, 7]]
-        self.color = BLACK'''
+        self.color = WHITE'''
 
     def current_player_color(self):
         return self.color
@@ -834,7 +834,7 @@ def main():
     while pygame.mixer.get_busy():
         pygame.time.delay(100)
     running = True
-    if over[1] == WHITE:
+    if over[1] == BLACK:
         screen.fill(pygame.Color('black'))
         font = pygame.font.Font(None, 150)
         string_rendered = font.render('БЕЛЫЕ ПОБЕДИЛИ', True, pygame.Color('white'))
@@ -842,7 +842,7 @@ def main():
         intro_rect.x = screen.get_width() // 2 - intro_rect.width // 2
         intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
         screen.blit(string_rendered, intro_rect)
-    elif over[1] == BLACK:
+    elif over[1] == WHITE:
         screen.fill(pygame.Color('white'))
         font = pygame.font.Font(None, 150)
         string_rendered = font.render('ЧЁРНЫЕ ПОБЕДИЛИ', True, pygame.Color('black'))
