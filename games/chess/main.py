@@ -54,6 +54,15 @@ class Board:
             King(BLACK), Bishop(BLACK), Knight(BLACK), Rook(BLACK)
         ]
         self.kingscoords = [[0, 4], [7, 4]]
+        '''self.field = []
+        for row in range(8):
+            self.field.append([None] * 8)
+        self.field[3][7] = King(BLACK)
+        self.field[7][4] = King(WHITE)
+        self.field[4][5] = Bishop(WHITE)
+        self.field[2][6] = Queen(WHITE)
+        self.kingscoords = [[7, 4], [3, 7]]
+        self.color = BLACK'''
 
     def current_player_color(self):
         return self.color
@@ -93,8 +102,8 @@ class Board:
             '''if self.color == WHITE:
                 print('WHITE')
             else:
-                print('BLACK')
-            return False'''
+                print('BLACK')'''
+            return False
         if self.field[row1][col1] is None:
             if not piece.can_move(self, row, col, row1, col1):
                 return False
