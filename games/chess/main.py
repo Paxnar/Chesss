@@ -7,6 +7,16 @@ WHITE = 1
 BLACK = 2
 checkW = False
 checkB = False
+pointsW = 10000
+pointsB = 0
+over = [False, 0]
+'''
+1250/8=156.25 pawn
+2500/4=625 bishop/knight
+5000/2=1500 rook
+       3250 queen
+10000
+'''
 
 
 # Удобная функция для вычисления цвета противника
@@ -66,12 +76,13 @@ class Board:
             return None
 
     def move_piece(self, row, col, row1, col1):
+        global pointsB
+        global pointsW
         '''Переместить фигуру из точки (row, col) в точку (row1, col1).
         Если перемещение возможно, метод выполнит его и вернёт True.
         Если нет --- вернёт False'''
 
         if not correct_coords(row, col) or not correct_coords(row1, col1):
-            print('coords')
             return False
         if row == row1 and col == col1:
             return False  # нельзя пойти в ту же клетку
@@ -79,11 +90,11 @@ class Board:
         if piece is None:
             return False
         if piece.get_color() != self.color:
-            if self.color == WHITE:
+            '''if self.color == WHITE:
                 print('WHITE')
             else:
                 print('BLACK')
-            return False
+            return False'''
         if self.field[row1][col1] is None:
             if not piece.can_move(self, row, col, row1, col1):
                 return False
@@ -96,6 +107,34 @@ class Board:
             self.field[row][col].castling = False
         except BaseException:
             True
+        if self.field[row1][col1] is not None:
+            ugh = self.field[row1][col1]
+            if ugh.color == WHITE:
+                if type(ugh) == Pawn:
+                    pointsB += 156.25
+                    pointsW -= 156.25
+                elif type(ugh) == Knight or type(ugh) == Bishop:
+                    pointsB += 625
+                    pointsW -= 625
+                elif type(ugh) == Rook:
+                    pointsB += 1500
+                    pointsW -= 1500
+                elif type(ugh) == Queen:
+                    pointsB += 3250
+                    pointsW -= 3250
+            elif ugh.color == BLACK:
+                if type(ugh) == Pawn:
+                    pointsB -= 156.25
+                    pointsW += 156.25
+                elif type(ugh) == Knight or type(ugh) == Bishop:
+                    pointsB -= 625
+                    pointsW += 625
+                elif type(ugh) == Rook:
+                    pointsB -= 1500
+                    pointsW += 1500
+                elif type(ugh) == Queen:
+                    pointsB -= 3250
+                    pointsW += 3250
         self.field[row][col] = None  # Снять фигуру.
         self.field[row1][col1] = piece  # Поставить на новое место.
         if type(self.field[row1][col1]) == Pawn:
@@ -144,11 +183,13 @@ class Rook(Piece):
     def char(self):
         return 'R'
 
-    def can_move(self, board, row, col, row1, col1):
+    def can_move(self, board, row, col, row1, col1, king=False):
         # Невозможно сделать ход в клетку, которая не лежит в том же ряду
         # или столбце клеток.
+        if row == row1 and col == col1:
+            return False
         if board.field[row1][col1] is not None:
-            if board.get_piece(row1, col1).get_color() == self.color:
+            if board.get_piece(row1, col1).get_color() == self.color and not king:
                 return False
         if row != row1 and col != col1:
             return False
@@ -167,8 +208,8 @@ class Rook(Piece):
 
         return True
 
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
+    def can_attack(self, board, row, col, row1, col1, king=False):
+        return self.can_move(board, row, col, row1, col1, king)
 
     def doesexist(self):
         if self.exists:
@@ -190,6 +231,8 @@ class Pawn(Piece):
         return 'P'
 
     def can_move(self, board, row, col, row1, col1):
+        if row == row1 and col == col1:
+            return False
         # Пешка может ходить только по вертикали
         # "взятие на проходе" не реализовано
         if col != col1:
@@ -218,12 +261,22 @@ class Pawn(Piece):
 
         return False
 
-    def can_attack(self, board, row, col, row1, col1):
-        if board.field[row1][col1] is not None:
+    def can_attack(self, board, row, col, row1, col1, king=False):
+        if board.field[row1][col1] is not None and not king:
             if board.field[row1][col1].get_color() != self.color:
-                direction = 1 if (self.color == WHITE) else -1
-                return (row + direction == row1
-                        and (col + 1 == col1 or col - 1 == col1))
+                if self.color == BLACK:
+                    if row - row1 == 1 and abs(col1 - col) == 1:
+                        return True
+                elif self.color == WHITE:
+                    if row - row1 == -1 and abs(col1 - col) == 1:
+                        return True
+        elif king:
+            if self.color == BLACK:
+                if row - row1 == 1 and abs(col1 - col) == 1:
+                    return True
+            elif self.color == WHITE:
+                if row - row1 == -1 and abs(col1 - col) == 1:
+                    return True
         return False
 
     def doesexist(self):
@@ -245,14 +298,13 @@ class Knight(Piece):
     def char(self):
         return 'N'  # kNight, буква 'K' уже занята королём
 
-    def can_move(self, board, row, col, row1, col1):
-        try:
-            if not correct_coords(row1, col1):
-                return False
-        except BaseException as be:
-            print(be)
+    def can_move(self, board, row, col, row1, col1, king=False):
+        if row == row1 and col == col1:
+            return False
+        if not correct_coords(row1, col1):
+            return False
 
-        if board.field[row1][col1] is not None and board.field[row1][col1].get_color() == self.get_color():
+        if board.field[row1][col1] is not None and board.field[row1][col1].get_color() == self.get_color() and not king:
             return False
 
         if (abs(row1 - row) == 2 and abs(col1 - col) == 1) or (abs(row1 - row) == 1 and abs(col1 - col) == 2):
@@ -260,8 +312,8 @@ class Knight(Piece):
 
         return False
 
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
+    def can_attack(self, board, row, col, row1, col1, king=False):
+        return self.can_move(board, row, col, row1, col1, king)
 
     def doesexist(self):
         if self.exists:
@@ -284,8 +336,9 @@ class King(Piece):
     def char(self):
         return 'K'
 
-    def can_move(self, board, row, col, row1, col1):
-        self.count = 0
+    def can_move(self, board, row, col, row1, col1, king=False):
+        if row == row1 and col == col1:
+            return False
         self.castling2 = False
         if not correct_coords(row1, col1):
             return False
@@ -297,10 +350,8 @@ class King(Piece):
             for o in range(len(board.field[i])):
                 if (board.field[i][o] is not None) and board.field[i][o] != self and type(board.field[i][o]) != King:
                     if board.field[i][o].color != self.color:
-                        if board.field[i][o].can_attack(board, i, o, row1, col1):
-                            self.count += 1
-        if self.count >= 1:
-            return False
+                        if board.field[i][o].can_attack(board, i, o, row1, col1, king=True):
+                            return False
 
         if self.castling:
             if col1 == 6 and row == row1 and col1 - col == 2:
@@ -348,8 +399,8 @@ class King(Piece):
 
         return True
 
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
+    def can_attack(self, board, row, col, row1, col1, king=False):
+        return self.can_move(board, row, col, row1, col1, king)
 
     def doesexist(self):
         if self.exists:
@@ -369,11 +420,13 @@ class Queen(Piece):
     def char(self):
         return 'Q'
 
-    def can_move(self, board, row, col, row1, col1):
+    def can_move(self, board, row, col, row1, col1, king=False):
+        if row == row1 and col == col1:
+            return False
         if not correct_coords(row1, col1):
             return False
 
-        if not (board.field[row1][col1] is None) and board.field[row1][col1].get_color() == self.get_color():
+        if not (board.field[row1][col1] is None) and board.field[row1][col1].get_color() == self.get_color() and not king:
             return False
 
         if not ((col == col1)
@@ -406,8 +459,8 @@ class Queen(Piece):
 
         return True
 
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
+    def can_attack(self, board, row, col, row1, col1, king=False):
+        return self.can_move(board, row, col, row1, col1, king)
 
     def doesexist(self):
         if self.exists:
@@ -427,11 +480,13 @@ class Bishop(Piece):
     def char(self):
         return 'B'
 
-    def can_move(self, board, row, col, row1, col1):
+    def can_move(self, board, row, col, row1, col1, king=False):
         if not correct_coords(row1, col1):
             return False
-
-        if not (board.field[row1][col1] is None) and board.field[row1][col1].get_color() == self.get_color():
+        if row == row1 and col == col1:
+            return False
+        if not (board.field[row1][col1] is None) and board.field[row1][col1].get_color() == self.get_color()\
+                and not king:
             return False
 
         if not abs(col - col1) == abs(row - row1):
@@ -448,8 +503,8 @@ class Bishop(Piece):
 
         return True
 
-    def can_attack(self, board, row, col, row1, col1):
-        return self.can_move(board, row, col, row1, col1)
+    def can_attack(self, board, row, col, row1, col1, king=False):
+        return self.can_move(board, row, col, row1, col1, king)
 
     def doesexist(self):
         if self.exists:
@@ -517,11 +572,14 @@ class BoardPygame:
         self.cell_size = cell_size
 
     def render(self, screen, field, board):
+        global over
         x = self.left
         y = self.top
         size = self.cell_size
         self.checkB = False
         self.checkW = False
+        self.wcells = 0
+        self.bcells = 0
         whiteking = board.kingscoords[0]
         blackking = board.kingscoords[1]
         for i in range(len(field)):
@@ -551,18 +609,29 @@ class BoardPygame:
                         image = pygame.transform.scale(load_image("bQueen.png"), (90, 90))
                     screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
                 elif type(field[i][o]) == King:
+                    for coord in [[i + 1, o], [i - 1, o], [i + 1, o + 1], [i + 1, o - 1], [i - 1, o + 1],
+                                  [i - 1, o - 1], [i, o - 1], [i, o + 1]]:
+                        if not field[i][o].can_move(board, i, o, coord[0], coord[1]):
+                            if field[i][o].get_color() == WHITE:
+                                self.wcells += 1
+                            elif field[i][o].get_color() == BLACK:
+                                self.bcells += 1
                     if field[i][o].get_color() == WHITE and not self.checkW:
                         image = pygame.transform.scale(load_image("wKing.png"), (90, 90))
-                    elif field[i][o].get_color() == WHITE and self.checkW and field[i][o].count >= 1:
-                        image = pygame.transform.scale(load_image("wKingshah.png"), (90, 90))
-                    elif field[i][o].get_color() == WHITE and self.checkW and field[i][o].count == 0:
+                    elif field[i][o].get_color() == WHITE and self.checkW and self.wcells == 8:
                         image = pygame.transform.scale(load_image("wKingdead.png"), (90, 90))
+                        over = [True, WHITE]
+                    elif field[i][o].get_color() == WHITE and self.checkW:
+                        image = pygame.transform.scale(load_image("wKingshah.png"), (90, 90))
                     elif field[i][o].get_color() == BLACK and not self.checkB:
                         image = pygame.transform.scale(load_image("bKing.png"), (90, 90))
-                    elif field[i][o].get_color() == BLACK and self.checkB and field[i][o].count >= 1:
-                        image = pygame.transform.scale(load_image("bKingshah.png"), (90, 90))
-                    elif field[i][o].get_color() == BLACK and self.checkB and field[i][o].count == 0:
+                    elif field[i][o].get_color() == BLACK and self.checkB and self.bcells == 8:
                         image = pygame.transform.scale(load_image("bKingdead.png"), (90, 90))
+                        over = [True, BLACK]
+                    elif field[i][o].get_color() == BLACK and self.checkB:
+                        image = pygame.transform.scale(load_image("bKingshah.png"), (90, 90))
+                    else:
+                        print(self.checkB, self.bcells)
                     screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
                 elif type(field[i][o]) == Pawn:
                     if field[i][o].get_color() == WHITE:
@@ -631,7 +700,6 @@ class BoardPygame:
             return ((mx - self.left) // self.cell_size, (my - self.top) // self.cell_size)
 
     def on_click(self, cell_coords, screen, board):
-        print(self.selected)
         if cell_coords is not None:
             if self.selected == 'none' and board.field[7 - cell_coords[1]][cell_coords[0]] is not None:
                 self.movingpiece = board.field[7 - cell_coords[1]][cell_coords[0]]
@@ -643,12 +711,10 @@ class BoardPygame:
             elif self.selected == 'piece':
                 self.selected = 'none'
                 if board.move_piece(7 - self.piece_coords[1], self.piece_coords[0], 7 - cell_coords[1], cell_coords[0]):
-                    print(True)
                     board.field[7 - cell_coords[1]][cell_coords[0]].exists = True
                     sound1 = pygame.mixer.Sound('data/piece_down' + str(randint(1, 3)) + '.ogg')
                     pygame.mixer.Sound.play(sound1)
                 else:
-                    print(False)
                     board.field[7 - self.piece_coords[1]][self.piece_coords[0]].exists = True
                     sound1 = pygame.mixer.Sound('data/piece_up.ogg')
                     pygame.mixer.Sound.play(sound1)
@@ -700,9 +766,12 @@ def main():
     boardpygame.cell_size = chisla[0] // chisla[1]
     running = True
     while running:
+        if over[0]:
+            running = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                pygame.quit()
             screen.fill(pygame.Color(155, 155, 155))
             draw(screen, int(chisla[1]))
             boardpygame.render(screen, board.field, board)
@@ -751,7 +820,42 @@ def main():
             pygame.display.flip()
             checkW = boardpygame.checkW
             checkB = boardpygame.checkB
-    pygame.quit()
+    sound1 = pygame.mixer.Sound('data/kingdead.mp3')
+    pygame.mixer.Sound.play(sound1)
+    while pygame.mixer.get_busy():
+        pygame.time.delay(100)
+    running = True
+    if over[1] == WHITE:
+        screen.fill(pygame.Color('black'))
+        font = pygame.font.Font(None, 150)
+        string_rendered = font.render('БЕЛЫЕ ПОБЕДИЛИ', True, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.x = screen.get_width() // 2 - intro_rect.width // 2
+        intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
+        screen.blit(string_rendered, intro_rect)
+    elif over[1] == BLACK:
+        screen.fill(pygame.Color('white'))
+        font = pygame.font.Font(None, 150)
+        string_rendered = font.render('ЧЁРНЫЕ ПОБЕДИЛИ', True, pygame.Color('black'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.x = screen.get_width() // 2 - intro_rect.width // 2
+        intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
+        screen.blit(string_rendered, intro_rect)
+    pygame.display.flip()
+    sound1 = pygame.mixer.Sound('data/victory.ogg')
+    pygame.mixer.Sound.play(sound1)
+    while pygame.mixer.get_busy():
+        pygame.time.delay(100)
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or event.type == pygame.MOUSEBUTTONDOWN:
+                running = False
+                pygame.quit()
+
+
+
+
 
 
 if __name__ == "__main__":
