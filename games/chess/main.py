@@ -55,7 +55,7 @@ class Board:
             King(BLACK), Bishop(BLACK), Knight(BLACK), Rook(BLACK)
         ]
         self.kingscoords = [[0, 4], [7, 4]]
-        self.field = []
+        '''self.field = []
         for row in range(8):
             self.field.append([None] * 8)
         self.field[3][7] = King(WHITE)
@@ -63,7 +63,7 @@ class Board:
         self.field[4][5] = Bishop(BLACK)
         self.field[2][6] = Queen(BLACK)
         self.kingscoords = [[3, 7], [7, 4]]
-        self.color = BLACK
+        self.color = BLACK'''
 
     def current_player_color(self):
         return self.color
