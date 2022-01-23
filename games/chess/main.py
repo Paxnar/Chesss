@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 from random import randint
+import copy
 
 WHITE = 1
 BLACK = 2
@@ -63,14 +64,6 @@ class Board:
         self.field[2][6] = Queen(BLACK)
         self.kingscoords = [[3, 7], [7, 4]]
         self.color = BLACK'''
-
-        self.field = []
-        for row in range(8):
-            self.field.append([None] * 8)
-        self.field[5][4] = King(WHITE)
-        self.field[3][4] = King(BLACK)
-        self.color = BLACK
-        self.kingscoords = [[5, 4], [3, 4]]
 
     def current_player_color(self):
         return self.color
@@ -223,6 +216,25 @@ class Rook(Piece):
             if not (board.get_piece(row, c) is None):
                 return False
 
+        tmp_board = copy.deepcopy(board)
+        tmp_board.field[row1][col1] = self
+        tmp_board.field[row][col] = None
+        if self.color == WHITE:
+            for i in range(len(tmp_board.field)):
+                for o in range(len(tmp_board.field[i])):
+                    if tmp_board.field[i][o] is not None:
+                        if tmp_board.field[i][o].color != self.color:
+                            if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[0][0],
+                                                                tmp_board.kingscoords[0][1]):
+                                return False
+        else:
+            for i in range(len(tmp_board.field)):
+                for o in range(len(tmp_board.field[i])):
+                    if tmp_board.field[i][o] is not None:
+                        if tmp_board.field[i][o].color != self.color:
+                            if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[1][0],
+                                                                tmp_board.kingscoords[1][1]):
+                                return False
         return True
 
     def can_attack(self, board, row, col, row1, col1, king=False):
@@ -248,6 +260,7 @@ class Pawn(Piece):
         return 'P'
 
     def can_move(self, board, row, col, row1, col1):
+        g = False
         if row == row1 and col == col1:
             return False
         # Пешка может ходить только по вертикали
@@ -263,30 +276,56 @@ class Pawn(Piece):
         else:
             direction = -1
             start_row = 6
-
         # ход на 1 клетку
         if row + direction == row1:
-            if board.field[row1][col1] is None:
-                return True
+            if board.field[row1][col1] is not None:
+                return False
+            else:
+                g = True
 
         # ход на 2 клетки из начального положения
         if (row == start_row
                 and row + 2 * direction == row1
-                and board.field[row + direction][col] is None):
-            if board.field[row1][col1] is None:
-                return True
+                and board.field[row + direction][col] is None) and not g:
+            if board.field[row1][col1] is not None:
+                return False
+            else:
+                g = True
 
-        return False
+        if g:
+            tmp_board = copy.deepcopy(board)
+            tmp_board.field[row1][col1] = self
+            tmp_board.field[row][col] = None
+            if self.color == WHITE:
+                for i in range(len(tmp_board.field)):
+                    for o in range(len(tmp_board.field[i])):
+                        if tmp_board.field[i][o] is not None:
+                            if tmp_board.field[i][o].color != self.color:
+                                if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[0][0],
+                                                                    tmp_board.kingscoords[0][1]):
+                                    return False
+            else:
+                for i in range(len(tmp_board.field)):
+                    for o in range(len(tmp_board.field[i])):
+                        if tmp_board.field[i][o] is not None:
+                            if tmp_board.field[i][o].color != self.color:
+                                if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[1][0],
+                                                                    tmp_board.kingscoords[1][1]):
+                                    return False
+            return True
+        else:
+            return False
 
     def can_attack(self, board, row, col, row1, col1, king=False):
+        g = False
         if board.field[row1][col1] is not None and not king:
             if board.field[row1][col1].get_color() != self.color:
                 if self.color == BLACK:
                     if row - row1 == 1 and abs(col1 - col) == 1:
-                        return True
+                        g = True
                 elif self.color == WHITE:
                     if row - row1 == -1 and abs(col1 - col) == 1:
-                        return True
+                        g = True
         elif king:
             if self.color == BLACK:
                 if row - row1 == 1 and abs(col1 - col) == 1:
@@ -294,7 +333,30 @@ class Pawn(Piece):
             elif self.color == WHITE:
                 if row - row1 == -1 and abs(col1 - col) == 1:
                     return True
-        return False
+            return False
+        if g:
+            tmp_board = copy.deepcopy(board)
+            tmp_board.field[row1][col1] = self
+            tmp_board.field[row][col] = None
+            if self.color == WHITE:
+                for i in range(len(tmp_board.field)):
+                    for o in range(len(tmp_board.field[i])):
+                        if tmp_board.field[i][o] is not None:
+                            if tmp_board.field[i][o].color != self.color:
+                                if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[0][0],
+                                                                    tmp_board.kingscoords[0][1]):
+                                    return False
+            else:
+                for i in range(len(tmp_board.field)):
+                    for o in range(len(tmp_board.field[i])):
+                        if tmp_board.field[i][o] is not None:
+                            if tmp_board.field[i][o].color != self.color:
+                                if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[1][0],
+                                                                    tmp_board.kingscoords[1][1]):
+                                    return False
+            return True
+        else:
+            return False
 
     def doesexist(self):
         if self.exists:
@@ -316,6 +378,7 @@ class Knight(Piece):
         return 'N'  # kNight, буква 'K' уже занята королём
 
     def can_move(self, board, row, col, row1, col1, king=False):
+        g = False
         if row == row1 and col == col1:
             return False
         if not correct_coords(row1, col1):
@@ -325,9 +388,31 @@ class Knight(Piece):
             return False
 
         if (abs(row1 - row) == 2 and abs(col1 - col) == 1) or (abs(row1 - row) == 1 and abs(col1 - col) == 2):
-            return True
+            g = True
 
-        return False
+        if g:
+            tmp_board = copy.deepcopy(board)
+            tmp_board.field[row1][col1] = self
+            tmp_board.field[row][col] = None
+            if self.color == WHITE:
+                for i in range(len(tmp_board.field)):
+                    for o in range(len(tmp_board.field[i])):
+                        if tmp_board.field[i][o] is not None:
+                            if tmp_board.field[i][o].color != self.color:
+                                if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[0][0],
+                                                                    tmp_board.kingscoords[0][1]):
+                                    return False
+            else:
+                for i in range(len(tmp_board.field)):
+                    for o in range(len(tmp_board.field[i])):
+                        if tmp_board.field[i][o] is not None:
+                            if tmp_board.field[i][o].color != self.color:
+                                if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[1][0],
+                                                                    tmp_board.kingscoords[1][1]):
+                                    return False
+            return True
+        else:
+            return False
 
     def can_attack(self, board, row, col, row1, col1, king=False):
         return self.can_move(board, row, col, row1, col1, king)
@@ -587,6 +672,25 @@ class Queen(Piece):
                 if board.get_piece(row_check, col_check):
                     return False
 
+        tmp_board = copy.deepcopy(board)
+        tmp_board.field[row1][col1] = self
+        tmp_board.field[row][col] = None
+        if self.color == WHITE:
+            for i in range(len(tmp_board.field)):
+                for o in range(len(tmp_board.field[i])):
+                    if tmp_board.field[i][o] is not None:
+                        if tmp_board.field[i][o].color != self.color:
+                            if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[0][0],
+                                                                tmp_board.kingscoords[0][1]):
+                                return False
+        else:
+            for i in range(len(tmp_board.field)):
+                for o in range(len(tmp_board.field[i])):
+                    if tmp_board.field[i][o] is not None:
+                        if tmp_board.field[i][o].color != self.color:
+                            if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[1][0],
+                                                                tmp_board.kingscoords[1][1]):
+                                return False
         return True
 
     def can_attack(self, board, row, col, row1, col1, king=False):
@@ -631,6 +735,25 @@ class Bishop(Piece):
                 if board.get_piece(row_check, col_check):
                     return False
 
+        tmp_board = copy.deepcopy(board)
+        tmp_board.field[row1][col1] = self
+        tmp_board.field[row][col] = None
+        if self.color == WHITE:
+            for i in range(len(tmp_board.field)):
+                for o in range(len(tmp_board.field[i])):
+                    if tmp_board.field[i][o] is not None:
+                        if tmp_board.field[i][o].color != self.color:
+                            if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[0][0],
+                                                                tmp_board.kingscoords[0][1]):
+                                return False
+        else:
+            for i in range(len(tmp_board.field)):
+                for o in range(len(tmp_board.field[i])):
+                    if tmp_board.field[i][o] is not None:
+                        if tmp_board.field[i][o].color != self.color:
+                            if tmp_board.field[i][o].can_attack(tmp_board, i, o, tmp_board.kingscoords[1][0],
+                                                                tmp_board.kingscoords[1][1]):
+                                return False
         return True
 
     def can_attack(self, board, row, col, row1, col1, king=False):
