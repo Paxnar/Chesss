@@ -64,6 +64,14 @@ class Board:
         self.kingscoords = [[3, 7], [7, 4]]
         self.color = BLACK'''
 
+        self.field = []
+        for row in range(8):
+            self.field.append([None] * 8)
+        self.field[5][4] = King(WHITE)
+        self.field[3][4] = King(BLACK)
+        self.color = BLACK
+        self.kingscoords = [[5, 4], [3, 4]]
+
     def current_player_color(self):
         return self.color
 
@@ -354,7 +362,6 @@ class King(Piece):
 
         if not (board.field[row1][col1] is None) and board.field[row1][col1].get_color() == self.get_color():
             return False
-
         for i in range(len(board.field)):
             for o in range(len(board.field[i])):
                 if (board.field[i][o] is not None) and board.field[i][o] != self and type(board.field[i][o]) != King:
@@ -407,14 +414,118 @@ class King(Piece):
         if col == col1 and not self.castling2:
             if abs(row - row1) != 1:
                 return False
+            elif row - row1 == 1:
+                if correct_coords(row1 - 1, col1):
+                    if type(board.field[row1 - 1][col1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1 - 1):
+                    if type(board.field[row1 - 1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1 + 1):
+                    if type(board.field[row1 - 1][col1 + 1]) == King:
+                        return False
+            elif row - row1 == -1:
+                if correct_coords(row1 + 1, col1):
+                    if type(board.field[row1 + 1][col1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1 - 1):
+                    if type(board.field[row1 + 1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1 + 1):
+                    if type(board.field[row1 + 1][col1 + 1]) == King:
+                        return False
 
         if row1 == row and not self.castling2:
             if abs(col - col1) != 1:
                 return False
+            elif col - col1 == 1:
+                if correct_coords(row1, col1 - 1):
+                    if type(board.field[row1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1 - 1):
+                    if type(board.field[row1 - 1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1 - 1):
+                    if type(board.field[row1 + 1][col1 - 1]) == King:
+                        return False
+            elif col - col1 == -1:
+                if correct_coords(row1, col1 + 1):
+                    if type(board.field[row1][col1 + 1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1 + 1):
+                    if type(board.field[row1 - 1][col1 + 1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1 + 1):
+                    if type(board.field[row1 + 1][col1 + 1]) == King:
+                        return False
 
         if abs(col - col1) == abs(row - row1) and not self.castling2:
             if abs(col - col1) != 1:
                 return False
+            elif col - col1 == -1 and row - row1 == 1:
+                if correct_coords(row1 - 1, col1 - 1):
+                    if type(board.field[row1 - 1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1):
+                    if type(board.field[row1 - 1][col1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1 + 1):
+                    if type(board.field[row1 - 1][col1 + 1]) == King:
+                        return False
+                if correct_coords(row1, col1 + 1):
+                    if type(board.field[row1][col1 + 1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1 + 1):
+                    if type(board.field[row1 + 1][col1 + 1]) == King:
+                        return False
+            elif col - col1 == -1 and row - row1 == -1:
+                if correct_coords(row1 - 1, col1 + 1):
+                    if type(board.field[row1 - 1][col1 + 1]) == King:
+                        return False
+                if correct_coords(row1, col1 + 1):
+                    if type(board.field[row1][col1 + 1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1 + 1):
+                    if type(board.field[row1 + 1][col1 + 1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1):
+                    if type(board.field[row1 + 1][col1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1 - 1):
+                    if type(board.field[row1 + 1][col1 - 1]) == King:
+                        return False
+            elif col - col1 == 1 and row - row1 == -1:
+                if correct_coords(row1 + 1, col1 + 1):
+                    if type(board.field[row1 + 1][col1 + 1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1):
+                    if type(board.field[row1 + 1][col1]) == King:
+                        return False
+                if correct_coords(row1 + 1, col1 - 1):
+                    if type(board.field[row1 + 1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1, col1 - 1):
+                    if type(board.field[row1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1 - 1):
+                    if type(board.field[row1 - 1][col1 - 1]) == King:
+                        return False
+            elif col - col1 == 1 and row - row1 == 1:
+                if correct_coords(row1 + 1, col1 - 1):
+                    if type(board.field[row1 + 1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1, col1 - 1):
+                    if type(board.field[row1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1 - 1):
+                    if type(board.field[row1 - 1][col1 - 1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1):
+                    if type(board.field[row1 - 1][col1]) == King:
+                        return False
+                if correct_coords(row1 - 1, col1 + 1):
+                    if type(board.field[row1 - 1][col1 + 1]) == King:
+                        return False
 
         return True
 
@@ -592,6 +703,8 @@ class BoardPygame:
 
     def render(self, screen, field, board):
         global over
+        global checkW
+        global checkB
         x = self.left
         y = self.top
         size = self.cell_size
@@ -616,6 +729,8 @@ class BoardPygame:
                             not field[i][o].can_attack(board, i, o, blackking[0], blackking[1]):
                         self.checkB = False
                         self.checkW = False
+        checkW = self.checkW
+        checkB = self.checkB
         for i in range(len(field)):
             for o in range(len(field[i])):
                 if field[i][o] is not None:
@@ -791,6 +906,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
+                sys.exit()
             screen.fill(pygame.Color(155, 155, 155))
             draw(screen, int(chisla[1]))
             boardpygame.render(screen, board.field, board)
@@ -837,8 +953,6 @@ def main():
                         image = pygame.transform.scale(load_image("bRook.png"), (90, 90))
                 screen.blit(image, (event.pos[0] - 45, event.pos[1] - 45))
             pygame.display.flip()
-            checkW = boardpygame.checkW
-            checkB = boardpygame.checkB
     sound1 = pygame.mixer.Sound('data/kingdead.mp3')
     pygame.mixer.Sound.play(sound1)
     while pygame.mixer.get_busy():
