@@ -57,12 +57,12 @@ class Board:
         '''self.field = []
         for row in range(8):
             self.field.append([None] * 8)
-        self.field[3][7] = King(BLACK)
-        self.field[7][4] = King(WHITE)
-        self.field[4][5] = Bishop(WHITE)
-        self.field[2][6] = Queen(WHITE)
-        self.kingscoords = [[7, 4], [3, 7]]
-        self.color = WHITE'''
+        self.field[3][7] = King(WHITE)
+        self.field[7][4] = King(BLACK)
+        self.field[4][5] = Bishop(BLACK)
+        self.field[2][6] = Queen(BLACK)
+        self.kingscoords = [[3, 7], [7, 4]]
+        self.color = BLACK'''
 
     def current_player_color(self):
         return self.color
@@ -845,19 +845,27 @@ def main():
         pygame.time.delay(100)
     running = True
     if over[1] == BLACK:
-        screen.fill(pygame.Color('black'))
-        font = pygame.font.Font(None, 150)
-        string_rendered = font.render('БЕЛЫЕ ПОБЕДИЛИ', True, pygame.Color('white'))
+        font = pygame.font.Font(None, 60)
+        string_rendered = font.render('БЕЛЫЕ', True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
-        intro_rect.x = screen.get_width() // 2 - intro_rect.width // 2
+        intro_rect.x = 50
+        intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
+        screen.blit(string_rendered, intro_rect)
+        string_rendered = font.render('ПОБЕДИЛИ', True, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.x = 1015
         intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
         screen.blit(string_rendered, intro_rect)
     elif over[1] == WHITE:
-        screen.fill(pygame.Color('white'))
-        font = pygame.font.Font(None, 150)
-        string_rendered = font.render('ЧЁРНЫЕ ПОБЕДИЛИ', True, pygame.Color('black'))
+        font = pygame.font.Font(None, 60)
+        string_rendered = font.render('ЧЁРНЫЕ', True, pygame.Color('black'))
         intro_rect = string_rendered.get_rect()
-        intro_rect.x = screen.get_width() // 2 - intro_rect.width // 2
+        intro_rect.x = 50
+        intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
+        screen.blit(string_rendered, intro_rect)
+        string_rendered = font.render('ПОБЕДИЛИ', True, pygame.Color('black'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.x = 1015
         intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
         screen.blit(string_rendered, intro_rect)
     pygame.display.flip()
@@ -870,7 +878,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT or event.type == pygame.MOUSEBUTTONDOWN:
                 running = False
-                pygame.quit()
+    pygame.quit()
 
 
 if __name__ == "__main__":
