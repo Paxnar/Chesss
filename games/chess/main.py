@@ -1033,10 +1033,10 @@ def main():
             screen.fill(pygame.Color(155, 155, 155))
             draw(screen, int(chisla[1]))
             boardpygame.render(screen, board.field, board)
-            start_screen(screen, 'black', -2)
+            '''start_screen(screen, 'black', -2)
             start_screen(screen, 'white', 700)
             start_screen(screen, 'black', 280, vertical=True)
-            start_screen(screen, 'white', 986, vertical=True)
+            start_screen(screen, 'white', 986, vertical=True)'''
             if event.type == pygame.MOUSEBUTTONDOWN:
                 boardpygame.get_click(event.pos, screen, board)
             if event.type == pygame.MOUSEMOTION and boardpygame.selected == 'piece':
