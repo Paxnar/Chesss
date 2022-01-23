@@ -459,7 +459,7 @@ class King(Piece):
                                         if (board.field[p][a] is not None) and board.field[p][a] != self and type(
                                                 board.field[p][a]) != King:
                                             if board.field[p][a].color == self.color:
-                                                if not board.field[p][a].can_move(board, p, a, row1, col1):
+                                                if board.field[p][a].can_move(board, p, a, row1, col1):
                                                     hi += 1
                             if hi == 0:
                                 return False
