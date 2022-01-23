@@ -360,7 +360,17 @@ class King(Piece):
                 if (board.field[i][o] is not None) and board.field[i][o] != self and type(board.field[i][o]) != King:
                     if board.field[i][o].color != self.color:
                         if board.field[i][o].can_attack(board, i, o, row1, col1, king=True):
-                            return False
+                            hi = 0
+                            if king:
+                                for p in range(len(board.field)):
+                                    for a in range(len(board.field[p])):
+                                        if (board.field[p][a] is not None) and board.field[p][a] != self and type(
+                                                board.field[p][a]) != King:
+                                            if board.field[p][a].color == self.color:
+                                                if not board.field[p][a].can_move(board, p, a, row1, col1):
+                                                    hi += 1
+                            if hi == 0:
+                                return False
 
         if self.castling:
             if col1 == 6 and row == row1 and col1 - col == 2:
@@ -620,7 +630,7 @@ class BoardPygame:
                 elif type(field[i][o]) == King:
                     for coord in [[i + 1, o], [i - 1, o], [i + 1, o + 1], [i + 1, o - 1], [i - 1, o + 1],
                                   [i - 1, o - 1], [i, o - 1], [i, o + 1]]:
-                        if not field[i][o].can_move(board, i, o, coord[0], coord[1]):
+                        if not field[i][o].can_move(board, i, o, coord[0], coord[1], king=True):
                             if field[i][o].get_color() == WHITE:
                                 self.wcells += 1
                             elif field[i][o].get_color() == BLACK:
