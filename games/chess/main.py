@@ -55,7 +55,7 @@ class Board:
             King(BLACK), Bishop(BLACK), Knight(BLACK), Rook(BLACK)
         ]
         self.kingscoords = [[0, 4], [7, 4]]
-        '''self.field = []
+        self.field = []
         for row in range(8):
             self.field.append([None] * 8)
         self.field[3][7] = King(WHITE)
@@ -63,7 +63,7 @@ class Board:
         self.field[4][5] = Bishop(BLACK)
         self.field[2][6] = Queen(BLACK)
         self.kingscoords = [[3, 7], [7, 4]]
-        self.color = BLACK'''
+        self.color = BLACK
 
     def current_player_color(self):
         return self.color
@@ -887,8 +887,6 @@ class BoardPygame:
                         over = [True, BLACK]
                     elif field[i][o].get_color() == BLACK and self.checkB:
                         image = pygame.transform.scale(load_image("bKingshah.png"), (90, 90))
-                    else:
-                        print(self.checkB, self.bcells)
                     screen.blit(image, (280 + 90 * o, 90 * (7 - i)))
                 elif type(field[i][o]) == Pawn:
                     if field[i][o].get_color() == WHITE:
@@ -1013,6 +1011,7 @@ def main():
     # Создаём шахматную доску
     global checkB
     global checkW
+    global over
     chisla = [720, 8]
     pygame.init()
     pygame.display.set_caption('Шахматы')
@@ -1116,6 +1115,10 @@ def main():
             if event.type == pygame.QUIT or event.type == pygame.MOUSEBUTTONDOWN:
                 running = False
     pygame.quit()
+    checkW = False
+    checkB = False
+    over = [False, 0]
+    main()
 
 
 if __name__ == "__main__":

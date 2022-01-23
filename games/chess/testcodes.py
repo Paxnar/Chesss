@@ -6,4 +6,4 @@ class Paxnar:
 pow = Paxnar('s')
 shoo = Paxnar('g')
 s = [Paxnar('sfg'), Paxnar('dg')]
-print(pow in s)
+print(Paxnar('sfg') in s)
