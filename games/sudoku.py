@@ -5,7 +5,6 @@ from copy import deepcopy
 cells  = 3
 side  = cells*cells
 
-# pattern for a baseline valid solution
 def mix(ran,n): 
     x = (cells * (ran % cells) + ran // cells + n) % side
     print(x)
@@ -58,7 +57,7 @@ val = 0
 grid_T = deepcopy(sud_desk)
 
 font1 = pygame.font.SysFont("Helvetica", 40)
-font_alert = pygame.font.SysFont("Helvetica", 25)
+font_alert = pygame.font.SysFont("Helvetica", 22)
 font2 = pygame.font.SysFont("comicsans", 20)
 
 
@@ -147,7 +146,7 @@ def solve(sud_desk, i, j):  # решение Судоку
             return True
     pygame.event.pump()
     for z in range(1, 10):
-        if valid(sud_desk, i, j, z) == True:
+        if valid(sud_desk, i, j, z):
             sud_desk[i][j] = z
             global x, y
             x = i
@@ -168,11 +167,6 @@ def solve(sud_desk, i, j):  # решение Судоку
             pygame.display.update()
             pygame.time.delay(50)
     return False
-
-
-
-
-# Display options when solved
 
 
 def result():
@@ -216,16 +210,16 @@ while run:
                 val = 9
             if event.key == pygame.K_RETURN:
                 flag2 = 1
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT and x > 0:
                 x -= 1
                 flag1 = 1
-            if event.key == pygame.K_RIGHT:
+            if event.key == pygame.K_RIGHT and x < 8:
                 x += 1
                 flag1 = 1
-            if event.key == pygame.K_UP:
+            if event.key == pygame.K_UP and y < 0:
                 y -= 1
                 flag1 = 1
-            if event.key == pygame.K_DOWN:
+            if event.key == pygame.K_DOWN and y < 8: 
                 y += 1
                 flag1 = 1
             if event.key == pygame.K_r:
@@ -262,7 +256,7 @@ while run:
         flag2 = 0
     if val != 0:
         draw_val(val)
-        if valid(sud_desk, int(x), int(y), val) == True:
+        if valid(sud_desk, int(x), int(y), val):
             sud_desk[int(x)][int(y)] = val
             flag1 = 0
         else:
