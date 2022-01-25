@@ -47,7 +47,7 @@ pygame.font.init()
 screen = pygame.display.set_mode((500, 600))
 
 pygame.display.set_caption("СУДОКУ")
-img = pygame.image.load('icon.png')
+img = pygame.image.load('ic_sudoku.png')
 pygame.display.set_icon(img)
 
 x = 0
