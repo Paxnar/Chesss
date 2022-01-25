@@ -1,12 +1,13 @@
 import pygame
 import sys
 from games.tic_tac_toe.tic_tac_toe import TicTacToe
+from games.chess.main import  main as chess
 
 
 class Menu:
     def __init__(self, menu_items=None, menu_games=None):
         if menu_games is None:
-            menu_games = [[(41, "images\\test.png"), 127]]
+            menu_games = [[(41, "data\\images\\test.png"), 127]]
         if menu_items is None:
             menu_items = [(396, 319), (305, 93), "Item", (0, 0, 0), (18, 0, 255), 0]
         self.menu_items = menu_items
@@ -21,6 +22,7 @@ class Menu:
                 scr.blit(font.render(i[2], 1, i[3]), i[0])
 
     def render_games(self, scr):
+        screen.blit(pygame.image.load("data\\images\\background_fl.jpg"), (0, 0))
         for i in self.menu_games:
             for f in range(len(i) - 1):
                 pygame.draw.rect(scr, (0, 0, 153), (i[f][0], i[-1], 272, 179), border_radius=25)
@@ -29,11 +31,16 @@ class Menu:
     # цикл меню
     def menu_cyc(self):
         run = True
-        menu_font = pygame.font.Font("fonts\\Arial.otf", 80)
+        menu_font = pygame.font.Font("data\\fonts\\Arial.otf", 80)
         menu_section = "items"
+        pygame.mixer.music.load("data\\sounds\\bgmusic.mp3")
+        pygame.mixer.music.play(-1)
+        mus = True
         while run:
+            if not mus:
+                mus = True
             screen.fill((0, 0, 0))
-            screen.blit(pygame.image.load("images\\background.jpg"), (0, 0))
+            screen.blit(pygame.image.load("data\\images\\background.jpg"), (0, 0))
             mouse_pos = pygame.mouse.get_pos()
             if menu_section == "items":
                 item = -1
@@ -63,9 +70,16 @@ class Menu:
                         sys.exit()
                     if games_event.type == pygame.MOUSEBUTTONDOWN and games_event.button == 1:
                         if game == 0:
+                            pygame.mixer.music.pause()
+                            mus = False
                             TicTacToe(screen)
+                        if game == 1:
+                            pygame.mixer.music.pause()
+                            mus = False
+                            chess(screen)
                     if games_event.type == pygame.KEYDOWN and games_event.key == pygame.K_ESCAPE:
                         menu_section = "items"
+
             pygame.display.flip()
 
 
@@ -73,9 +87,9 @@ items = [((483, 200), (305, 93), "Играть", (0, 0, 0), (18, 0, 255), 0),
          ((396, 310), (486, 93), "Настройки", (0, 0, 0), (18, 0, 255), 1),
          ((494, 420), (289, 93), "Выйти", (0, 0, 0), (18, 0, 255), 2)]
 
-games = [[(41, "images\\game_ttt.png", 0), (350, "images\\game_chess.png", 1), (659, "images\\test.png", 2),
-          (968, "images\\test.png", 3), 127], [(41, "images\\test.png", 4), (350, "images\\test.png", 5),
-                                               (659, "images\\test.png", 6), 413]]
+games = [[(41, "data\\images/game_ttt.png", 0), (350, "data\\images\\game_chess.png", 1), (659, "data\\images\\test.png", 2),
+          (968, "data\\images\\test.png", 3), 127], [(41, "data\\images\\test.png", 4), (350, "data\\images\\test.png", 5),
+                                               (659, "data\\images\\test.png", 6), 413]]
 
 pygame.init()
 size = width, height = 1280, 720
