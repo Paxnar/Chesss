@@ -207,14 +207,24 @@ class Rook(Piece):
         step = 1 if (row1 >= row) else -1
         for r in range(row + step, row1, step):
             # Если на пути по горизонтали есть фигура
-            if not (board.get_piece(r, col) is None):
+            if board.get_piece(r, col) and not king:
                 return False
+            elif board.get_piece(r, col) and king:
+                if type(board.field[r][col]) == King and board.field[r][col].color != self.color:
+                    continue
+                else:
+                    return False
 
         step = 1 if (col1 >= col) else -1
         for c in range(col + step, col1, step):
             # Если на пути по вертикали есть фигура
-            if not (board.get_piece(row, c) is None):
+            if board.get_piece(row, c) and not king:
                 return False
+            elif board.get_piece(row, c) and king:
+                if type(board.field[row][c]) == King and board.field[row][c].color != self.color:
+                    continue
+                else:
+                    return False
 
         tmp_board = copy.deepcopy(board)
         tmp_board.field[row1][col1] = self
@@ -653,15 +663,25 @@ class Queen(Piece):
             step = (row1 - row) // abs(row1 - row)
             for i in range(1, abs(row1 - row)):
                 row_check = row + i * step
-                if board.get_piece(row_check, col):
+                if board.get_piece(row_check, col) and not king:
                     return False
+                elif board.get_piece(row_check, col) and king:
+                    if type(board.field[row_check][col]) == King and board.field[row_check][col].color != self.color:
+                        continue
+                    else:
+                        return False
 
         if row1 == row:
             step = (col1 - col) // abs(col - col1)
             for i in range(1, abs(col - col1)):
                 col_check = col + i * step
-                if board.get_piece(row, col_check):
+                if board.get_piece(row, col_check) and not king:
                     return False
+                elif board.get_piece(row, col_check) and king:
+                    if type(board.field[row][col_check]) == King and board.field[row][col_check].color != self.color:
+                        continue
+                    else:
+                        return False
 
         if abs(col - col1) == abs(row - row1):
             step_row = (row1 - row) // abs(row - row1)
@@ -669,8 +689,13 @@ class Queen(Piece):
             for i in range(1, abs(row - row1)):
                 row_check = row + i * step_row
                 col_check = col + i * step_col
-                if board.get_piece(row_check, col_check):
+                if board.get_piece(row_check, col_check) and not king:
                     return False
+                elif board.get_piece(row_check, col_check) and king:
+                    if type(board.field[row_check][col_check]) == King and board.field[row_check][col_check].color != self.color:
+                        continue
+                    else:
+                        return False
 
         tmp_board = copy.deepcopy(board)
         tmp_board.field[row1][col1] = self
@@ -732,8 +757,14 @@ class Bishop(Piece):
             for i in range(1, abs(row - row1)):
                 row_check = row + i * step_row
                 col_check = col + i * step_col
-                if board.get_piece(row_check, col_check):
+                if board.get_piece(row_check, col_check) and not king:
                     return False
+                elif board.get_piece(row_check, col_check) and king:
+                    if type(board.field[row_check][col_check]) == King and board.field[row_check][col_check].color\
+                            != self.color:
+                        continue
+                    else:
+                        return False
 
         tmp_board = copy.deepcopy(board)
         tmp_board.field[row1][col1] = self
