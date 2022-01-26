@@ -826,7 +826,7 @@ def draw(screen, much):
 
 
 def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+    fullname = os.path.join('games/chess/data', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
@@ -992,17 +992,17 @@ class BoardPygame:
                 self.selected = 'piece'
                 self.piece_coords = cell_coords
                 board.field[7 - cell_coords[1]][cell_coords[0]].exists = False
-                sound1 = pygame.mixer.Sound('data/piece_up.ogg')
+                sound1 = pygame.mixer.Sound('games/chess/data/piece_up.ogg')
                 pygame.mixer.Sound.play(sound1)
             elif self.selected == 'piece':
                 self.selected = 'none'
                 if board.move_piece(7 - self.piece_coords[1], self.piece_coords[0], 7 - cell_coords[1], cell_coords[0]):
                     board.field[7 - cell_coords[1]][cell_coords[0]].exists = True
-                    sound1 = pygame.mixer.Sound('data/piece_down' + str(randint(1, 3)) + '.ogg')
+                    sound1 = pygame.mixer.Sound('games/chess/data/piece_down' + str(randint(1, 3)) + '.ogg')
                     pygame.mixer.Sound.play(sound1)
                 else:
                     board.field[7 - self.piece_coords[1]][self.piece_coords[0]].exists = True
-                    sound1 = pygame.mixer.Sound('data/piece_up.ogg')
+                    sound1 = pygame.mixer.Sound('games/chess/data/piece_up.ogg')
                     pygame.mixer.Sound.play(sound1)
 
 
@@ -1038,16 +1038,13 @@ def start_screen(screen, color, y=0, vertical=False):
                 color = 'black'
 
 
-def main():
+def main(scr):
     # Создаём шахматную доску
     global checkB
     global checkW
     global over
     chisla = [720, 8]
-    pygame.init()
-    pygame.display.set_caption('Шахматы')
-    size = width, height = 1280, int(chisla[0])
-    screen = pygame.display.set_mode(size)
+    back = False
     boardpygame = BoardPygame(8, 8)
     board = Board()
     boardpygame.cell_size = chisla[0] // chisla[1]
@@ -1060,15 +1057,18 @@ def main():
                 running = False
                 pygame.quit()
                 sys.exit()
-            screen.fill(pygame.Color(155, 155, 155))
-            draw(screen, int(chisla[1]))
-            boardpygame.render(screen, board.field, board)
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running = False
+                back = True
+            scr.fill(pygame.Color(155, 155, 155))
+            draw(scr, int(chisla[1]))
+            boardpygame.render(scr, board.field, board)
             '''start_screen(screen, 'black', -2)
             start_screen(screen, 'white', 700)
             start_screen(screen, 'black', 280, vertical=True)
             start_screen(screen, 'white', 986, vertical=True)'''
             if event.type == pygame.MOUSEBUTTONDOWN:
-                boardpygame.get_click(event.pos, screen, board)
+                boardpygame.get_click(event.pos, scr, board)
             if event.type == pygame.MOUSEMOTION and boardpygame.selected == 'piece':
                 if type(boardpygame.movingpiece) == Queen:
                     if boardpygame.movingpiece.get_color() == WHITE:
@@ -1104,53 +1104,52 @@ def main():
                         image = pygame.transform.scale(load_image("wRook.png"), (90, 90))
                     else:
                         image = pygame.transform.scale(load_image("bRook.png"), (90, 90))
-                screen.blit(image, (event.pos[0] - 45, event.pos[1] - 45))
+                scr.blit(image, (event.pos[0] - 45, event.pos[1] - 45))
             pygame.display.flip()
-    sound1 = pygame.mixer.Sound('data/kingdead.mp3')
-    pygame.mixer.Sound.play(sound1)
-    while pygame.mixer.get_busy():
-        pygame.time.delay(100)
-    running = True
-    if over[1] == BLACK:
-        font = pygame.font.Font(None, 60)
-        string_rendered = font.render('БЕЛЫЕ', True, pygame.Color('white'))
-        intro_rect = string_rendered.get_rect()
-        intro_rect.x = 50
-        intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
-        screen.blit(string_rendered, intro_rect)
-        string_rendered = font.render('ПОБЕДИЛИ', True, pygame.Color('white'))
-        intro_rect = string_rendered.get_rect()
-        intro_rect.x = 1015
-        intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
-        screen.blit(string_rendered, intro_rect)
-    elif over[1] == WHITE:
-        font = pygame.font.Font(None, 60)
-        string_rendered = font.render('ЧЁРНЫЕ', True, pygame.Color('black'))
-        intro_rect = string_rendered.get_rect()
-        intro_rect.x = 50
-        intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
-        screen.blit(string_rendered, intro_rect)
-        string_rendered = font.render('ПОБЕДИЛИ', True, pygame.Color('black'))
-        intro_rect = string_rendered.get_rect()
-        intro_rect.x = 1015
-        intro_rect.y = screen.get_height() // 2 - intro_rect.height // 2
-        screen.blit(string_rendered, intro_rect)
-    pygame.display.flip()
-    sound1 = pygame.mixer.Sound('data/victory.ogg')
-    pygame.mixer.Sound.play(sound1)
-    while pygame.mixer.get_busy():
-        pygame.time.delay(100)
+    if not back:
+        sound1 = pygame.mixer.Sound('games/chess/data/kingdead.mp3')
+        pygame.mixer.Sound.play(sound1)
+        while pygame.mixer.get_busy():
+            pygame.time.delay(100)
+        running = True
+        if over[1] == BLACK:
+            font = pygame.font.Font(None, 60)
+            string_rendered = font.render('БЕЛЫЕ', True, pygame.Color('white'))
+            intro_rect = string_rendered.get_rect()
+            intro_rect.x = 50
+            intro_rect.y = scr.get_height() // 2 - intro_rect.height // 2
+            scr.blit(string_rendered, intro_rect)
+            string_rendered = font.render('ПОБЕДИЛИ', True, pygame.Color('white'))
+            intro_rect = string_rendered.get_rect()
+            intro_rect.x = 1015
+            intro_rect.y = scr.get_height() // 2 - intro_rect.height // 2
+            scr.blit(string_rendered, intro_rect)
+        elif over[1] == WHITE:
+            font = pygame.font.Font(None, 60)
+            string_rendered = font.render('ЧЁРНЫЕ', True, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            intro_rect.x = 50
+            intro_rect.y = scr.get_height() // 2 - intro_rect.height // 2
+            scr.blit(string_rendered, intro_rect)
+            string_rendered = font.render('ПОБЕДИЛИ', True, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            intro_rect.x = 1015
+            intro_rect.y = scr.get_height() // 2 - intro_rect.height // 2
+            scr.blit(string_rendered, intro_rect)
+        pygame.display.flip()
+        sound1 = pygame.mixer.Sound('games/chess/data/victory.ogg')
+        pygame.mixer.Sound.play(sound1)
+        while pygame.mixer.get_busy():
+            pygame.time.delay(100)
 
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or event.type == pygame.MOUSEBUTTONDOWN:
-                running = False
-    pygame.quit()
-    checkW = False
-    checkB = False
-    over = [False, 0]
-    main()
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or event.type == pygame.MOUSEBUTTONDOWN:
+                    running = False
+
+        checkW = False
+        checkB = False
+        over = [False, 0]
+        main(scr)
 
 
-if __name__ == "__main__":
-    main()

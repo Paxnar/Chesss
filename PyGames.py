@@ -2,7 +2,8 @@ import pygame
 import sys
 from games.tic_tac_toe.tic_tac_toe import TicTacToe
 from games.chess.main import  main as chess
-
+from games.mine_sweeper.mine_sweeper import main as mine_sweeper
+from games.sudoku.sudoku import main as sudoku
 
 class Menu:
     def __init__(self, menu_items=None, menu_games=None):
@@ -34,11 +35,13 @@ class Menu:
         menu_font = pygame.font.Font("data\\fonts\\Arial.otf", 80)
         menu_section = "items"
         pygame.mixer.music.load("data\\sounds\\bgmusic.mp3")
+        pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play(-1)
         mus = True
         while run:
             if not mus:
                 mus = True
+                pygame.mixer.music.play(-1)
             screen.fill((0, 0, 0))
             screen.blit(pygame.image.load("data\\images\\background.jpg"), (0, 0))
             mouse_pos = pygame.mouse.get_pos()
@@ -55,8 +58,6 @@ class Menu:
                         if item == 0:
                             menu_section = "games"
                         elif item == 1:
-                            run = False
-                        elif item == 2:
                             sys.exit()
             if menu_section == "games":
                 self.render_games(screen)
@@ -77,19 +78,27 @@ class Menu:
                             pygame.mixer.music.pause()
                             mus = False
                             chess(screen)
+                        if game == 2:
+                            pygame.mixer.music.pause()
+                            mus = False
+                            mine_sweeper(screen)
+                        if game == 3:
+                            pygame.mixer.music.pause()
+                            mus = False
+                            pygame.display.set_mode((500, 600))
+                            sudoku(screen)
+                            pygame.display.set_mode((1280, 720))
                     if games_event.type == pygame.KEYDOWN and games_event.key == pygame.K_ESCAPE:
                         menu_section = "items"
 
             pygame.display.flip()
 
 
-items = [((483, 200), (305, 93), "Играть", (0, 0, 0), (18, 0, 255), 0),
-         ((396, 310), (486, 93), "Настройки", (0, 0, 0), (18, 0, 255), 1),
-         ((494, 420), (289, 93), "Выйти", (0, 0, 0), (18, 0, 255), 2)]
+items = [((483, 215), (305, 93), "Играть", (0, 0, 0), (18, 0, 255), 0),
+         ((488, 360), (289, 93), "Выйти", (0, 0, 0), (18, 0, 255), 1)]
 
-games = [[(41, "data\\images/game_ttt.png", 0), (350, "data\\images\\game_chess.png", 1), (659, "data\\images\\test.png", 2),
-          (968, "data\\images\\test.png", 3), 127], [(41, "data\\images\\test.png", 4), (350, "data\\images\\test.png", 5),
-                                               (659, "data\\images\\test.png", 6), 413]]
+games = [[(41, "data\\images\\game_ttt.png", 0), (350, "data\\images\\game_chess.png", 1), (659, "data\\images\\game_mine_sweeper.png", 2),
+          (968, "data\\images\\sudoku.png", 3), 127]]
 
 pygame.init()
 size = width, height = 1280, 720
