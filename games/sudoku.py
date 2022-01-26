@@ -69,7 +69,7 @@ def get_coor(pos):
 
 
 def instruction_viz():
-    text1 = font2.render('НАЖМИТЕ D ДЛЯ СМЕНЫ УРОВНЯ / С ДЛЯ ОЧИСТКИ', 1, (0, 0, 0))
+    text1 = font2.render('НАЖМИТЕ С ДЛЯ ОЧИСТКИ, ВЫ МОЖЕТЕ СОЗДАТЬ СВОЙ УРОВЕНЬ', 1, (0, 0, 0))
     text2 = font2.render('ВВЕДИТЕ ЗНАЧЕНИЕ, ИЛИ НАЖМИТЕ ENTER ДЛЯ РЕШЕНИЯ', 1, (0, 0, 0))
     screen.blit(text1, (20, 520))
     screen.blit(text2, (20, 540))
