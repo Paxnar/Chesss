@@ -102,6 +102,7 @@ games = [[(41, "data\\images\\game_ttt.png", 0), (350, "data\\images\\game_chess
 
 pygame.init()
 size = width, height = 1280, 720
+pygame.display.set_caption("PyGames")
 screen = pygame.display.set_mode(size)
 menu = Menu(items, games)
 menu.menu_cyc()
