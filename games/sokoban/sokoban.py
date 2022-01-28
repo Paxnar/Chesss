@@ -6,7 +6,7 @@ import sys
 
 
 def load_level(filename):
-    filename = 'levels\\' + filename
+    filename = 'games\\sokoban\\levels\\' + filename
     # читаем уровень, убирая символы перевода строки
     with open(filename, 'r') as mapFile:
         level_map = [line.strip() for line in mapFile]
@@ -14,7 +14,7 @@ def load_level(filename):
 
 
 def load_image(name, color_key=None):
-    fullname = os.path.join('images\\', name)
+    fullname = os.path.join('games\\sokoban\\images\\', name)
     try:
         image = pygame.image.load(fullname)
     except pygame.error as message:
@@ -103,7 +103,7 @@ def generate_level(level):
     return new_player, x, y, env
 
 
-def main(scr, lvl=1):
+def main(scr, lvl=6):
     global screen, tile_width, player, boxes, all_sprites, boxes_group, env_group, grnd_group, walls_group, player_group, tile_width, tile_height, tile_images, player_images
     tile_width = tile_height = 64
     player = None
@@ -219,6 +219,8 @@ def main(scr, lvl=1):
                             env -= 1
                 if event.key == pygame.K_c:
                     main(screen, lvl)
+                if event.key == pygame.K_ESCAPE:
+                    run = False
         screen.fill((0, 0, 0))
         walls_group.draw(screen)
         grnd_group.draw(screen)
@@ -226,14 +228,12 @@ def main(scr, lvl=1):
         boxes_group.draw(screen)
         player_group.draw(screen)
         pygame.display.flip()
-        if env == 0:
+        if env == 0 and lvl + 1 != 7:
             time.sleep(1)
             main(screen, lvl + 1)
-    pygame.quit()
+        elif env == 0 and lvl + 1 == 7:
+            time.sleep(1)
+            main(screen, 1)
 
 
-if __name__ == "__main__":
-    pygame.init()
-    size = width, height = 64 * 8, 64 * 8
-    screen = pygame.display.set_mode(size)
-    main(screen)
+

@@ -4,6 +4,7 @@ from games.tic_tac_toe.tic_tac_toe import TicTacToe
 from games.chess.main import  main as chess
 from games.mine_sweeper.mine_sweeper import main as mine_sweeper
 from games.sudoku.sudoku import main as sudoku
+from games.sokoban.sokoban import main as sokoban
 
 class Menu:
     def __init__(self, menu_items=None, menu_games=None):
@@ -88,6 +89,12 @@ class Menu:
                             pygame.display.set_mode((500, 600))
                             sudoku(screen)
                             pygame.display.set_mode((1280, 720))
+                        if game == 4:
+                            pygame.mixer.music.pause()
+                            mus = False
+                            pygame.display.set_mode((512, 512))
+                            sokoban(screen)
+                            pygame.display.set_mode((1280, 720))
                     if games_event.type == pygame.KEYDOWN and games_event.key == pygame.K_ESCAPE:
                         menu_section = "items"
 
@@ -98,7 +105,7 @@ items = [((483, 215), (305, 93), "Играть", (0, 0, 0), (18, 0, 255), 0),
          ((488, 360), (289, 93), "Выйти", (0, 0, 0), (18, 0, 255), 1)]
 
 games = [[(41, "data\\images\\game_ttt.png", 0), (350, "data\\images\\game_chess.png", 1), (659, "data\\images\\game_mine_sweeper.png", 2),
-          (968, "data\\images\\sudoku.png", 3), 127]]
+          (968, "data\\images\\sudoku.png", 3), 127], [(41, "data\\images\\game_sokoban.png", 4), 413]]
 
 pygame.init()
 size = width, height = 1280, 720
