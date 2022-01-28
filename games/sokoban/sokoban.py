@@ -103,7 +103,7 @@ def generate_level(level):
     return new_player, x, y, env
 
 
-def main(scr, lvl=6):
+def main(scr, lvl=1):
     global screen, tile_width, player, boxes, all_sprites, boxes_group, env_group, grnd_group, walls_group, player_group, tile_width, tile_height, tile_images, player_images
     tile_width = tile_height = 64
     player = None
